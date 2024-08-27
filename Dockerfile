@@ -1,0 +1,29 @@
+FROM public.ecr.aws/emr-serverless/spark/emr-7.1.0:latest
+
+ENV APP_HOME /app
+ENV DD_LOGS_INJECTION=true
+ENV DD_PROFILING_ENABLED=true
+ENV DD_PROFILING_MEMORY_ENABLED=true
+ENV DD_DYNAMIC_INSTRUMENTATION_ENABLED=true
+ENV DD_TRACE_LOG_FILE_LEVEL=INFO
+ENV DD_CALL_BASIC_CONFIG=true
+ENV DD_VERSION=1.13
+ENV DD_TAGS=team:mplat
+ENV PYTHONUNBUFFERED True
+ENV DD_SERVICE=marketing-platforms-spark
+
+ENV AWS_GLUE_ENDPOINT=glue.us-east-2.amazonaws.com
+ENV AWS_EC2_METADATA_DISABLED=true
+
+ENV WAREHOUSE_DIR=./warehouse_dir
+
+
+COPY entrypoint.sh /entrypoint.sh
+
+WORKDIR $APP_HOME
+
+COPY . ./
+
+RUN pip3 install pyspark
+
+ENTRYPOINT [ "bash" ]
