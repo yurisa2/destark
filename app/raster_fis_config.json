@@ -1,0 +1,616 @@
+{
+  "description": "Raster fuzzy inference system for environmental assessment",
+  "input_variables": {
+    "social": {
+      "min": 0,
+      "max": 10,
+      "step": 0.1,
+      "membership_functions": {
+        "low": {
+          "type": "trapmf",
+          "params": [
+            0,
+            0,
+            2,
+            4
+          ]
+        },
+        "medium": {
+          "type": "trapmf",
+          "params": [
+            2,
+            4,
+            6,
+            7
+          ]
+        },
+        "high": {
+          "type": "trapmf",
+          "params": [
+            6,
+            7,
+            10,
+            10
+          ]
+        }
+      }
+    },
+    "environmental": {
+      "min": 0,
+      "max": 10,
+      "step": 0.1,
+      "membership_functions": {
+        "low": {
+          "type": "trapmf",
+          "params": [
+            0,
+            0,
+            2,
+            5
+          ]
+        },
+        "medium": {
+          "type": "trapmf",
+          "params": [
+            2,
+            5,
+            6,
+            8
+          ]
+        },
+        "high": {
+          "type": "trapmf",
+          "params": [
+            6,
+            8,
+            10,
+            10
+          ]
+        }
+      }
+    },
+    "strategic": {
+      "min": 0,
+      "max": 10,
+      "step": 0.1,
+      "membership_functions": {
+        "low": {
+          "type": "trapmf",
+          "params": [
+            0,
+            0,
+            3,
+            5
+          ]
+        },
+        "medium": {
+          "type": "trapmf",
+          "params": [
+            3,
+            5,
+            7,
+            8
+          ]
+        },
+        "high": {
+          "type": "trapmf",
+          "params": [
+            7,
+            8,
+            10,
+            10
+          ]
+        }
+      }
+    }
+  },
+  "output_variable": {
+    "name": "priority",
+    "min": 0,
+    "max": 10,
+    "step": 0.1,
+    "membership_functions": {
+      "very_low": {
+        "type": "trimf",
+        "params": [
+          0,
+          0,
+          2.5
+        ]
+      },
+      "low": {
+        "type": "trimf",
+        "params": [
+          0,
+          2.5,
+          5
+        ]
+      },
+      "medium": {
+        "type": "trimf",
+        "params": [
+          2.5,
+          5,
+          7.5
+        ]
+      },
+      "high": {
+        "type": "trimf",
+        "params": [
+          5,
+          5.5,
+          10
+        ]
+      },
+      "very_high": {
+        "type": "trimf",
+        "params": [
+          7.5,
+          10,
+          10
+        ]
+      }
+    }
+  },
+  "rules": [
+    {
+      "antecedent": [
+        {
+          "variable": "social",
+          "membership": "low"
+        },
+        {
+          "variable": "environmental",
+          "membership": "low"
+        },
+        {
+          "variable": "strategic",
+          "membership": "high"
+        }
+      ],
+      "consequent": "very_low"
+    },
+    {
+      "antecedent": [
+        {
+          "variable": "social",
+          "membership": "low"
+        },
+        {
+          "variable": "environmental",
+          "membership": "low"
+        },
+        {
+          "variable": "strategic",
+          "membership": "medium"
+        }
+      ],
+      "consequent": "very_low"
+    },
+    {
+      "antecedent": [
+        {
+          "variable": "social",
+          "membership": "low"
+        },
+        {
+          "variable": "environmental",
+          "membership": "low"
+        },
+        {
+          "variable": "strategic",
+          "membership": "low"
+        }
+      ],
+      "consequent": "very_low"
+    },
+    {
+      "antecedent": [
+        {
+          "variable": "social",
+          "membership": "low"
+        },
+        {
+          "variable": "environmental",
+          "membership": "medium"
+        },
+        {
+          "variable": "strategic",
+          "membership": "high"
+        }
+      ],
+      "consequent": "medium"
+    },
+    {
+      "antecedent": [
+        {
+          "variable": "social",
+          "membership": "low"
+        },
+        {
+          "variable": "environmental",
+          "membership": "medium"
+        },
+        {
+          "variable": "strategic",
+          "membership": "medium"
+        }
+      ],
+      "consequent": "medium"
+    },
+    {
+      "antecedent": [
+        {
+          "variable": "social",
+          "membership": "low"
+        },
+        {
+          "variable": "environmental",
+          "membership": "medium"
+        },
+        {
+          "variable": "strategic",
+          "membership": "low"
+        }
+      ],
+      "consequent": "medium"
+    },
+    {
+      "antecedent": [
+        {
+          "variable": "social",
+          "membership": "low"
+        },
+        {
+          "variable": "environmental",
+          "membership": "high"
+        },
+        {
+          "variable": "strategic",
+          "membership": "high"
+        }
+      ],
+      "consequent": "low"
+    },
+    {
+      "antecedent": [
+        {
+          "variable": "social",
+          "membership": "low"
+        },
+        {
+          "variable": "environmental",
+          "membership": "high"
+        },
+        {
+          "variable": "strategic",
+          "membership": "medium"
+        }
+      ],
+      "consequent": "medium"
+    },
+    {
+      "antecedent": [
+        {
+          "variable": "social",
+          "membership": "low"
+        },
+        {
+          "variable": "environmental",
+          "membership": "high"
+        },
+        {
+          "variable": "strategic",
+          "membership": "low"
+        }
+      ],
+      "consequent": "high"
+    },
+    {
+      "antecedent": [
+        {
+          "variable": "social",
+          "membership": "medium"
+        },
+        {
+          "variable": "environmental",
+          "membership": "low"
+        },
+        {
+          "variable": "strategic",
+          "membership": "high"
+        }
+      ],
+      "consequent": "low"
+    },
+    {
+      "antecedent": [
+        {
+          "variable": "social",
+          "membership": "medium"
+        },
+        {
+          "variable": "environmental",
+          "membership": "low"
+        },
+        {
+          "variable": "strategic",
+          "membership": "medium"
+        }
+      ],
+      "consequent": "medium"
+    },
+    {
+      "antecedent": [
+        {
+          "variable": "social",
+          "membership": "medium"
+        },
+        {
+          "variable": "environmental",
+          "membership": "low"
+        },
+        {
+          "variable": "strategic",
+          "membership": "low"
+        }
+      ],
+      "consequent": "medium"
+    },
+    {
+      "antecedent": [
+        {
+          "variable": "social",
+          "membership": "medium"
+        },
+        {
+          "variable": "environmental",
+          "membership": "medium"
+        },
+        {
+          "variable": "strategic",
+          "membership": "high"
+        }
+      ],
+      "consequent": "low"
+    },
+    {
+      "antecedent": [
+        {
+          "variable": "social",
+          "membership": "medium"
+        },
+        {
+          "variable": "environmental",
+          "membership": "medium"
+        },
+        {
+          "variable": "strategic",
+          "membership": "medium"
+        }
+      ],
+      "consequent": "medium"
+    },
+    {
+      "antecedent": [
+        {
+          "variable": "social",
+          "membership": "medium"
+        },
+        {
+          "variable": "environmental",
+          "membership": "medium"
+        },
+        {
+          "variable": "strategic",
+          "membership": "low"
+        }
+      ],
+      "consequent": "medium"
+    },
+    {
+      "antecedent": [
+        {
+          "variable": "social",
+          "membership": "medium"
+        },
+        {
+          "variable": "environmental",
+          "membership": "high"
+        },
+        {
+          "variable": "strategic",
+          "membership": "high"
+        }
+      ],
+      "consequent": "medium"
+    },
+    {
+      "antecedent": [
+        {
+          "variable": "social",
+          "membership": "medium"
+        },
+        {
+          "variable": "environmental",
+          "membership": "high"
+        },
+        {
+          "variable": "strategic",
+          "membership": "medium"
+        }
+      ],
+      "consequent": "medium"
+    },
+    {
+      "antecedent": [
+        {
+          "variable": "social",
+          "membership": "medium"
+        },
+        {
+          "variable": "environmental",
+          "membership": "high"
+        },
+        {
+          "variable": "strategic",
+          "membership": "low"
+        }
+      ],
+      "consequent": "high"
+    },
+    {
+      "antecedent": [
+        {
+          "variable": "social",
+          "membership": "high"
+        },
+        {
+          "variable": "environmental",
+          "membership": "low"
+        },
+        {
+          "variable": "strategic",
+          "membership": "high"
+        }
+      ],
+      "consequent": "low"
+    },
+    {
+      "antecedent": [
+        {
+          "variable": "social",
+          "membership": "high"
+        },
+        {
+          "variable": "environmental",
+          "membership": "low"
+        },
+        {
+          "variable": "strategic",
+          "membership": "medium"
+        }
+      ],
+      "consequent": "high"
+    },
+    {
+      "antecedent": [
+        {
+          "variable": "social",
+          "membership": "high"
+        },
+        {
+          "variable": "environmental",
+          "membership": "low"
+        },
+        {
+          "variable": "strategic",
+          "membership": "low"
+        }
+      ],
+      "consequent": "high"
+    },
+    {
+      "antecedent": [
+        {
+          "variable": "social",
+          "membership": "high"
+        },
+        {
+          "variable": "environmental",
+          "membership": "medium"
+        },
+        {
+          "variable": "strategic",
+          "membership": "high"
+        }
+      ],
+      "consequent": "medium"
+    },
+    {
+      "antecedent": [
+        {
+          "variable": "social",
+          "membership": "high"
+        },
+        {
+          "variable": "environmental",
+          "membership": "medium"
+        },
+        {
+          "variable": "strategic",
+          "membership": "medium"
+        }
+      ],
+      "consequent": "high"
+    },
+    {
+      "antecedent": [
+        {
+          "variable": "social",
+          "membership": "high"
+        },
+        {
+          "variable": "environmental",
+          "membership": "medium"
+        },
+        {
+          "variable": "strategic",
+          "membership": "low"
+        }
+      ],
+      "consequent": "very_high"
+    },
+    {
+      "antecedent": [
+        {
+          "variable": "social",
+          "membership": "high"
+        },
+        {
+          "variable": "environmental",
+          "membership": "high"
+        },
+        {
+          "variable": "strategic",
+          "membership": "high"
+        }
+      ],
+      "consequent": "very_high"
+    },
+    {
+      "antecedent": [
+        {
+          "variable": "social",
+          "membership": "high"
+        },
+        {
+          "variable": "environmental",
+          "membership": "high"
+        },
+        {
+          "variable": "strategic",
+          "membership": "medium"
+        }
+      ],
+      "consequent": "very_high"
+    },
+    {
+      "antecedent": [
+        {
+          "variable": "social",
+          "membership": "high"
+        },
+        {
+          "variable": "environmental",
+          "membership": "high"
+        },
+        {
+          "variable": "strategic",
+          "membership": "low"
+        }
+      ],
+      "consequent": "very_high"
+    }
+  ]
+}
