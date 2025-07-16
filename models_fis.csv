@@ -1,0 +1,28 @@
+Rule INDEX,environmental_precedent,social_precedent,strategic_precedent,round_up_consequent,round_down_consequent,mode_consequent,minimum_consequent,max_consequent,median_consequent
+1,Pouco vulnerável,Pouco vulnerável,Pouco esforço,1,0,0,0,1,0
+2,Pouco vulnerável,Pouco vulnerável,Esforço médio,1,0,1,0,2,1
+3,Pouco vulnerável,Pouco vulnerável,Muito esforço,2,1,2,0,2,2
+4,Pouco vulnerável,Vulnerável,Pouco esforço,2,1,2,0,2,2
+5,Pouco vulnerável,Vulnerável,Esforço médio,2,1,1,1,3,2
+6,Pouco vulnerável,Vulnerável,Muito esforço,3,2,2,2,3,2
+7,Pouco vulnerável,Muito vulnerável,Pouco esforço,2,1,2,0,3,2
+8,Pouco vulnerável,Muito vulnerável,Esforço médio,3,2,2,1,3,2
+9,Pouco vulnerável,Muito vulnerável,Muito esforço,4,3,3,3,4,3
+10,Pouco vulnerável,Pouco vulnerável,Pouco esforço,1,0,1,0,1,1
+11,Vulnerável,Pouco vulnerável,Esforço médio,2,1,2,0,2,2
+12,Vulnerável,Pouco vulnerável,Muito esforço,3,2,2,2,4,2
+13,Vulnerável,Vulnerável,Pouco esforço,2,1,1,1,3,2
+14,Vulnerável,Vulnerável,Esforço médio,2,2,2,1,3,2
+15,Vulnerável,Vulnerável,Muito esforço,3,2,3,2,4,3
+16,Vulnerável,Muito vulnerável,Pouco esforço,2,2,2,1,3,2
+17,Vulnerável,Muito vulnerável,Esforço médio,3,2,3,2,3,3
+18,Vulnerável,Muito vulnerável,Muito esforço,4,3,4,3,4,4
+19,Muito vulnerável,Pouco vulnerável,Pouco esforço,2,2,2,1,3,2
+20,Muito vulnerável,Pouco vulnerável,Esforço médio,3,2,2,2,3,2
+21,Muito vulnerável,Pouco vulnerável,Muito esforço,4,3,4,3,4,4
+22,Muito vulnerável,Vulnerável,Pouco esforço,3,2,2,1,4,2
+23,Muito vulnerável,Vulnerável,Esforço médio,3,3,3,2,4,3
+24,Muito vulnerável,Vulnerável,Muito esforço,4,3,4,3,4,4
+25,Muito vulnerável,Muito vulnerável,Pouco esforço,3,2,3,1,4,3
+26,Muito vulnerável,Muito vulnerável,Esforço médio,4,3,4,3,4,4
+27,Muito vulnerável,Muito vulnerável,Muito esforço,4,4,4,4,4,4

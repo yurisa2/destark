@@ -1,0 +1,119 @@
+{
+  "description": "FIS Median Model - Environmental Assessment with Median Aggregation",
+  "input_variables": {
+    "environmental": {
+      "min": 0,
+      "max": 10,
+      "step": 0.1,
+      "membership_functions": {
+        "Pouco vulnerável": {
+          "type": "trapmf",
+          "params": [0, 0, 2.5, 3.75]
+        },
+        "Vulnerável": {
+          "type": "trapmf",
+          "params": [2.5, 3.75, 6.25, 7.5]
+        },
+        "Muito vulnerável": {
+          "type": "trapmf",
+          "params": [6.25, 7.5, 10, 10]
+        }
+      }
+    },
+    "social": {
+      "min": 0,
+      "max": 10,
+      "step": 0.1,
+      "membership_functions": {
+        "Pouco vulnerável": {
+          "type": "trapmf",
+          "params": [0, 0, 2.5, 3.75]
+        },
+        "Vulnerável": {
+          "type": "trapmf",
+          "params": [2.5, 3.75, 6.25, 7.5]
+        },
+        "Muito vulnerável": {
+          "type": "trapmf",
+          "params": [6.25, 7.5, 10, 10]
+        }
+      }
+    },
+    "strategic": {
+      "min": 0,
+      "max": 10,
+      "step": 0.1,
+      "membership_functions": {
+        "Pouco esforço": {
+          "type": "trapmf",
+          "params": [0, 0, 2.5, 3.75]
+        },
+        "Esforço médio": {
+          "type": "trapmf",
+          "params": [2.5, 3.75, 6.25, 7.5]
+        },
+        "Muito esforço": {
+          "type": "trapmf",
+          "params": [6.25, 7.5, 10, 10]
+        }
+      }
+    }
+  },
+  "output_variable": {
+    "name": "priority",
+    "min": 0,
+    "max": 10,
+    "step": 0.1,
+    "membership_functions": {
+      "0": {
+        "type": "trimf",
+        "params": [0, 0, 1.25]
+      },
+      "1": {
+        "type": "trimf",
+        "params": [0, 2.5, 3.75]
+      },
+      "2": {
+        "type": "trimf",
+        "params": [2.5, 5, 6.25]
+      },
+      "3": {
+        "type": "trimf",
+        "params": [5, 7.5, 8.75]
+      },
+      "4": {
+        "type": "trimf",
+        "params": [7.5, 10, 10]
+      }
+    }
+  },
+  "rules": [
+    {"antecedent": [{"variable": "environmental", "membership": "Pouco vulnerável"}, {"variable": "social", "membership": "Pouco vulnerável"}, {"variable": "strategic", "membership": "Pouco esforço"}], "consequent": "0"},
+    {"antecedent": [{"variable": "environmental", "membership": "Pouco vulnerável"}, {"variable": "social", "membership": "Pouco vulnerável"}, {"variable": "strategic", "membership": "Esforço médio"}], "consequent": "1"},
+    {"antecedent": [{"variable": "environmental", "membership": "Pouco vulnerável"}, {"variable": "social", "membership": "Pouco vulnerável"}, {"variable": "strategic", "membership": "Muito esforço"}], "consequent": "2"},
+    {"antecedent": [{"variable": "environmental", "membership": "Pouco vulnerável"}, {"variable": "social", "membership": "Vulnerável"}, {"variable": "strategic", "membership": "Pouco esforço"}], "consequent": "2"},
+    {"antecedent": [{"variable": "environmental", "membership": "Pouco vulnerável"}, {"variable": "social", "membership": "Vulnerável"}, {"variable": "strategic", "membership": "Esforço médio"}], "consequent": "2"},
+    {"antecedent": [{"variable": "environmental", "membership": "Pouco vulnerável"}, {"variable": "social", "membership": "Vulnerável"}, {"variable": "strategic", "membership": "Muito esforço"}], "consequent": "2"},
+    {"antecedent": [{"variable": "environmental", "membership": "Pouco vulnerável"}, {"variable": "social", "membership": "Muito vulnerável"}, {"variable": "strategic", "membership": "Pouco esforço"}], "consequent": "2"},
+    {"antecedent": [{"variable": "environmental", "membership": "Pouco vulnerável"}, {"variable": "social", "membership": "Muito vulnerável"}, {"variable": "strategic", "membership": "Esforço médio"}], "consequent": "2"},
+    {"antecedent": [{"variable": "environmental", "membership": "Pouco vulnerável"}, {"variable": "social", "membership": "Muito vulnerável"}, {"variable": "strategic", "membership": "Muito esforço"}], "consequent": "3"},
+    {"antecedent": [{"variable": "environmental", "membership": "Pouco vulnerável"}, {"variable": "social", "membership": "Pouco vulnerável"}, {"variable": "strategic", "membership": "Pouco esforço"}], "consequent": "1"},
+    {"antecedent": [{"variable": "environmental", "membership": "Vulnerável"}, {"variable": "social", "membership": "Pouco vulnerável"}, {"variable": "strategic", "membership": "Esforço médio"}], "consequent": "2"},
+    {"antecedent": [{"variable": "environmental", "membership": "Vulnerável"}, {"variable": "social", "membership": "Pouco vulnerável"}, {"variable": "strategic", "membership": "Muito esforço"}], "consequent": "2"},
+    {"antecedent": [{"variable": "environmental", "membership": "Vulnerável"}, {"variable": "social", "membership": "Vulnerável"}, {"variable": "strategic", "membership": "Pouco esforço"}], "consequent": "2"},
+    {"antecedent": [{"variable": "environmental", "membership": "Vulnerável"}, {"variable": "social", "membership": "Vulnerável"}, {"variable": "strategic", "membership": "Esforço médio"}], "consequent": "2"},
+    {"antecedent": [{"variable": "environmental", "membership": "Vulnerável"}, {"variable": "social", "membership": "Vulnerável"}, {"variable": "strategic", "membership": "Muito esforço"}], "consequent": "3"},
+    {"antecedent": [{"variable": "environmental", "membership": "Vulnerável"}, {"variable": "social", "membership": "Muito vulnerável"}, {"variable": "strategic", "membership": "Pouco esforço"}], "consequent": "2"},
+    {"antecedent": [{"variable": "environmental", "membership": "Vulnerável"}, {"variable": "social", "membership": "Muito vulnerável"}, {"variable": "strategic", "membership": "Esforço médio"}], "consequent": "3"},
+    {"antecedent": [{"variable": "environmental", "membership": "Vulnerável"}, {"variable": "social", "membership": "Muito vulnerável"}, {"variable": "strategic", "membership": "Muito esforço"}], "consequent": "4"},
+    {"antecedent": [{"variable": "environmental", "membership": "Muito vulnerável"}, {"variable": "social", "membership": "Pouco vulnerável"}, {"variable": "strategic", "membership": "Pouco esforço"}], "consequent": "2"},
+    {"antecedent": [{"variable": "environmental", "membership": "Muito vulnerável"}, {"variable": "social", "membership": "Pouco vulnerável"}, {"variable": "strategic", "membership": "Esforço médio"}], "consequent": "2"},
+    {"antecedent": [{"variable": "environmental", "membership": "Muito vulnerável"}, {"variable": "social", "membership": "Pouco vulnerável"}, {"variable": "strategic", "membership": "Muito esforço"}], "consequent": "4"},
+    {"antecedent": [{"variable": "environmental", "membership": "Muito vulnerável"}, {"variable": "social", "membership": "Vulnerável"}, {"variable": "strategic", "membership": "Pouco esforço"}], "consequent": "2"},
+    {"antecedent": [{"variable": "environmental", "membership": "Muito vulnerável"}, {"variable": "social", "membership": "Vulnerável"}, {"variable": "strategic", "membership": "Esforço médio"}], "consequent": "3"},
+    {"antecedent": [{"variable": "environmental", "membership": "Muito vulnerável"}, {"variable": "social", "membership": "Vulnerável"}, {"variable": "strategic", "membership": "Muito esforço"}], "consequent": "4"},
+    {"antecedent": [{"variable": "environmental", "membership": "Muito vulnerável"}, {"variable": "social", "membership": "Muito vulnerável"}, {"variable": "strategic", "membership": "Pouco esforço"}], "consequent": "3"},
+    {"antecedent": [{"variable": "environmental", "membership": "Muito vulnerável"}, {"variable": "social", "membership": "Muito vulnerável"}, {"variable": "strategic", "membership": "Esforço médio"}], "consequent": "4"},
+    {"antecedent": [{"variable": "environmental", "membership": "Muito vulnerável"}, {"variable": "social", "membership": "Muito vulnerável"}, {"variable": "strategic", "membership": "Muito esforço"}], "consequent": "4"}
+  ]
+} 
