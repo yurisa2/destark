@@ -1,12 +1,13 @@
 #!/bin/bash
 
 # Script to run all FIS models with the same input files
-# Usage: ./run_all_models.sh [--nodata VALUE] [--cores N] [--chunk-size N]
+# Usage: ./run_all_models.sh [--nodata VALUE] [--cores N] [--chunk-size N] [--sequential]
 
 # Default parameters
 NODATA_VALUE="--nodata 5"
 CORES="--cores 8"
 CHUNK_SIZE="--chunk-size 10000"
+PARALLEL_FLAG="--parallel"
 INPUT_DIR="app/files/input/base"
 OUTPUT_DIR="app/files/output"
 
@@ -25,18 +26,22 @@ while [[ $# -gt 0 ]]; do
             CHUNK_SIZE="--chunk-size $2"
             shift 2
             ;;
+        --sequential)
+            PARALLEL_FLAG=""
+            shift
+            ;;
         *)
             echo "Unknown option: $1"
-            echo "Usage: $0 [--nodata VALUE] [--cores N] [--chunk-size N]"
+            echo "Usage: $0 [--nodata VALUE] [--cores N] [--chunk-size N] [--sequential]"
             exit 1
             ;;
     esac
 done
 
 # Input files
-ENVIRONMENTAL="$INPUT_DIR/ambiental_1000m.tif"
-SOCIAL="$INPUT_DIR/socioeconomico_1000m.tif"
-STRATEGIC="$INPUT_DIR/estrategico_1000m.tif"
+ENVIRONMENTAL="$INPUT_DIR/ambiental_300m.tif"
+SOCIAL="$INPUT_DIR/socioeconomico_300m.tif"
+STRATEGIC="$INPUT_DIR/estrategico_300m.tif"
 
 # Check if input files exist
 if [[ ! -f "$ENVIRONMENTAL" ]]; then
@@ -66,7 +71,11 @@ echo "Input files:"
 echo "  Environmental: $ENVIRONMENTAL"
 echo "  Social: $SOCIAL"
 echo "  Strategic: $STRATEGIC"
-echo "Parameters: $NODATA_VALUE $CORES $CHUNK_SIZE"
+if [[ -n "$PARALLEL_FLAG" ]]; then
+    echo "Parameters: $NODATA_VALUE $CORES $CHUNK_SIZE (Parallel processing)"
+else
+    echo "Parameters: $NODATA_VALUE (Sequential processing)"
+fi
 echo ""
 
 # Function to run a single model
@@ -79,8 +88,8 @@ run_model() {
     echo "  Config: $config_file"
     echo "  Output: $output_file"
     
-    python app/run_raster_fis_parallel.py "$SOCIAL" "$ENVIRONMENTAL" "$STRATEGIC" "$output_file" \
-        --config "app/config/$config_file" $NODATA_VALUE $CORES $CHUNK_SIZE
+    python app/raster_fuzzy_cli.py "$SOCIAL" "$ENVIRONMENTAL" "$STRATEGIC" "$output_file" \
+        --config "app/config/$config_file" $NODATA_VALUE $PARALLEL_FLAG $CORES $CHUNK_SIZE
     
     if [[ $? -eq 0 ]]; then
         echo "  ✓ $model_name completed successfully"
