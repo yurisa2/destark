@@ -151,13 +151,13 @@ def main():
         epilog="""
 Examples:
   # Analyze a single raster
-  python characterize_rasters.py social.tif
+  python utils/characterize_rasters.py social.tif
 
   # Analyze multiple rasters
-  python characterize_rasters.py social.tif environmental.tif strategic.tif
+  python utils/characterize_rasters.py social.tif environmental.tif strategic.tif
 
   # Analyze with custom titles
-  python characterize_rasters.py --titles "Social Factor" "Environmental Factor" "Strategic Factor" social.tif environmental.tif strategic.tif
+  python utils/characterize_rasters.py --titles "Social Factor" "Environmental Factor" "Strategic Factor" social.tif environmental.tif strategic.tif
         """
     )
     

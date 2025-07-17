@@ -80,7 +80,7 @@ run_model() {
     echo "  Output: $output_file"
     
     python app/run_raster_fis_parallel.py "$SOCIAL" "$ENVIRONMENTAL" "$STRATEGIC" "$output_file" \
-        --config "app/$config_file" $NODATA_VALUE $CORES $CHUNK_SIZE
+        --config "app/config/$config_file" $NODATA_VALUE $CORES $CHUNK_SIZE
     
     if [[ $? -eq 0 ]]; then
         echo "  ✓ $model_name completed successfully"

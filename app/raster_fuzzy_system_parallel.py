@@ -567,7 +567,7 @@ def main():
     Main function demonstrating how to use the parallel raster fuzzy inference system.
     """
     # Create a sample configuration file if it doesn't exist
-    config_file = "raster_fis_config.json"
+    config_file = "app/raster_fis_config.json"
     if not os.path.exists(config_file):
         config = create_raster_config_template()
         with open(config_file, 'w') as f:

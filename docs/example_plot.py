@@ -23,22 +23,22 @@ def main():
     
     # Example 1: Plot a single output file
     print("1. Plotting a single output TIFF file:")
-    print("   python plot_output.py output.tif -t 'FIS Output' -o output_plot.png")
+    print("   python utils/plot_output.py output.tif -t 'FIS Output' -o output_plot.png")
     print()
     
     # Example 2: Plot with custom colormap
     print("2. Plotting with custom colormap:")
-    print("   python plot_output.py output.tif -c 'plasma' -t 'FIS Result' -o output_plasma.png")
+    print("   python utils/plot_output.py output.tif -c 'plasma' -t 'FIS Result' -o output_plasma.png")
     print()
     
     # Example 3: Plot without statistics
     print("3. Plotting without statistics:")
-    print("   python plot_output.py output.tif --no-stats -o output_clean.png")
+    print("   python utils/plot_output.py output.tif --no-stats -o output_clean.png")
     print()
     
     # Example 4: Comparison plot
     print("4. Comparison plot (input files + output):")
-    print("   python plot_output.py dummy.tif --comparison \\")
+    print("   python utils/plot_output.py dummy.tif --comparison \\")
     print("     --input-files environmental.tif social.tif strategic.tif \\")
     print("     --output-file output.tif \\")
     print("     --output-plot comparison.png")
@@ -46,7 +46,7 @@ def main():
     
     # Example 5: High resolution plot
     print("5. High resolution plot:")
-    print("   python plot_output.py output.tif --dpi 600 --figsize 12 10 -o output_hires.png")
+    print("   python utils/plot_output.py output.tif --dpi 600 --figsize 12 10 -o output_hires.png")
     print()
     
     print("=== Usage Notes ===")
