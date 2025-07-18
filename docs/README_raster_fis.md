@@ -180,7 +180,7 @@ python run_raster_fis.py [OPTIONS] social.tif environmental.tif strategic.tif ou
 ### Options:
 - `--config, -c`: Configuration file path (default: raster_fis_config.json)
 - `--create-config`: Create a template configuration file
-- `--nodata`: NoData value for output raster (default: -9999.0)
+- `--nodata`: NoData value for output raster (default: 5.0)
 - `--verbose, -v`: Enable verbose output
 
 ## Progress Tracking
@@ -272,7 +272,7 @@ The system produces:
 - **Single TIFF file**: Combined fuzzy logic result
 - **Same georeference**: Maintains spatial properties
 - **Float32 data type**: High precision output
-- **Configurable NoData**: Default -9999.0
+- **Configurable NoData**: Default 5.0
 
 ## Performance
 

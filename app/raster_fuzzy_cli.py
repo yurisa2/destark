@@ -58,8 +58,8 @@ Examples:
                        help='Path to configuration JSON file (default: raster_fis_config.json)')
     parser.add_argument('--create-config', action='store_true',
                        help='Create a template configuration file')
-    parser.add_argument('--nodata', type=float, default=-9999.0,
-                       help='NoData value for output raster (default: -9999.0)')
+    parser.add_argument('--nodata', type=float, default=5.0,
+                       help='NoData value for output raster (default: 5.0)')
     parser.add_argument('--parallel', '-p', action='store_true',
                        help='Enable parallel processing (default: sequential)')
     parser.add_argument('--cores', type=int, default=None,

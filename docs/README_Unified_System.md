@@ -48,7 +48,7 @@ python app/raster_fuzzy_cli.py social.tif environmental.tif strategic.tif output
 
 # Sequential processing with custom configuration
 python app/raster_fuzzy_cli.py social.tif environmental.tif strategic.tif output.tif \
-    --config my_config.json --nodata -32768
+    --config my_config.json --nodata 5
 ```
 
 ### Programmatic Usage
@@ -65,7 +65,7 @@ fis.process_rasters(
     environmental_tiff='environmental.tif',
     strategic_tiff='strategic.tif',
     output_tiff='output.tif',
-    nodata_value=-9999.0
+    nodata_value=5.0
 )
 
 # Parallel processing with fallback
@@ -74,7 +74,7 @@ fis.process_rasters(
     environmental_tiff='environmental.tif',
     strategic_tiff='strategic.tif',
     output_tiff='output.tif',
-    nodata_value=-9999.0,
+    nodata_value=5.0,
     parallel=True,
     num_cores=8,
     chunk_size=1000
@@ -86,7 +86,7 @@ fis.process_rasters(
 | Option | Description | Default |
 |--------|-------------|---------|
 | `--config, -c` | Configuration JSON file path | `raster_fis_config.json` |
-| `--nodata` | NoData value for output raster | `-9999.0` |
+| `--nodata` | NoData value for output raster | `5.0` |
 | `--parallel, -p` | Enable parallel processing | `False` (sequential) |
 | `--cores` | Number of CPU cores for parallel processing | All available |
 | `--chunk-size` | Rows per chunk for parallel processing | `100` |

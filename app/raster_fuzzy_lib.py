@@ -133,7 +133,7 @@ class UnifiedRasterFuzzyInferenceSystem:
                                    environmental_tiff: str, 
                                    strategic_tiff: str, 
                                    output_tiff: str,
-                                   nodata_value: float = -9999.0) -> None:
+                                   nodata_value: float = 5.0) -> None:
         """
         Process three input TIFF files sequentially and output a single TIFF file.
         
@@ -301,7 +301,7 @@ class UnifiedRasterFuzzyInferenceSystem:
                                  environmental_tiff: str, 
                                  strategic_tiff: str, 
                                  output_tiff: str,
-                                 nodata_value: float = -9999.0,
+                                 nodata_value: float = 5.0,
                                  num_cores: int = None,
                                  chunk_size: int = 100) -> None:
         """
@@ -411,7 +411,7 @@ class UnifiedRasterFuzzyInferenceSystem:
                        environmental_tiff: str, 
                        strategic_tiff: str, 
                        output_tiff: str,
-                       nodata_value: float = -9999.0,
+                       nodata_value: float = 5.0,
                        parallel: bool = False,
                        num_cores: int = None,
                        chunk_size: int = 100) -> None:
@@ -676,8 +676,8 @@ Examples:
     
     parser.add_argument('--config', '-c', default='raster_fis_config.json',
                        help='Path to configuration JSON file (default: raster_fis_config.json)')
-    parser.add_argument('--nodata', type=float, default=-9999.0,
-                       help='NoData value for output raster (default: -9999.0)')
+    parser.add_argument('--nodata', type=float, default=5.0,
+                       help='NoData value for output raster (default: 5.0)')
     parser.add_argument('--parallel', '-p', action='store_true',
                        help='Enable parallel processing (default: sequential)')
     parser.add_argument('--cores', type=int, default=None,
