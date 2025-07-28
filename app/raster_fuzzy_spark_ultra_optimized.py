@@ -173,23 +173,38 @@ def process_rasters_spark_ultra_optimized(
     def load_config_safe(config_path):
         """Load configuration file with S3 support."""
         if config_path.startswith('s3://'):
-            # For S3 files, download to temp file first
+            # For S3 files, use boto3 instead of aws CLI
             import tempfile
-            import subprocess
+            import boto3
             
+            # Parse S3 path
+            if '.s3.amazonaws.com' in config_path:
+                # Handle s3.amazonaws.com format
+                bucket_key = config_path.replace('s3://adveng-pipeline.s3.amazonaws.com/', '')
+                bucket_name = 'adveng-pipeline'
+            else:
+                # Handle standard s3:// format
+                bucket_key = config_path.replace('s3://adveng-pipeline/', '')
+                bucket_name = 'adveng-pipeline'
+            
+            # Create temporary file
             with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as tmp_file:
                 temp_path = tmp_file.name
             
-            # Download from S3
-            subprocess.run(['aws', 's3', 'cp', config_path, temp_path], check=True)
-            
-            # Read the config
-            with open(temp_path, 'r') as f:
-                config = json.load(f)
-            
-            # Clean up
-            os.unlink(temp_path)
-            return config
+            try:
+                # Download from S3 using boto3
+                s3_client = boto3.client('s3')
+                s3_client.download_file(bucket_name, bucket_key, temp_path)
+                
+                # Read the config
+                with open(temp_path, 'r') as f:
+                    config = json.load(f)
+                
+                return config
+            finally:
+                # Clean up
+                if os.path.exists(temp_path):
+                    os.unlink(temp_path)
         else:
             # Local file
             with open(config_path, 'r') as f:
@@ -258,7 +273,7 @@ def process_rasters_spark_ultra_optimized(
     if output_tiff.startswith('s3://'):
         # For S3 output, write to temporary file first
         import tempfile
-        import subprocess
+        import boto3
         
         with tempfile.NamedTemporaryFile(suffix='.tif', delete=False) as tmp_file:
             temp_path = tmp_file.name
@@ -266,9 +281,24 @@ def process_rasters_spark_ultra_optimized(
         with rasterio.open(temp_path, 'w', **profile) as dst:
             dst.write(output_data, 1)
         
-        # Upload to S3
-        subprocess.run(['aws', 's3', 'cp', temp_path, output_tiff], check=True)
-        os.unlink(temp_path)
+        try:
+            # Parse S3 path
+            if '.s3.amazonaws.com' in output_tiff:
+                # Handle s3.amazonaws.com format
+                bucket_key = output_tiff.replace('s3://adveng-pipeline.s3.amazonaws.com/', '')
+                bucket_name = 'adveng-pipeline'
+            else:
+                # Handle standard s3:// format
+                bucket_key = output_tiff.replace('s3://adveng-pipeline/', '')
+                bucket_name = 'adveng-pipeline'
+            
+            # Upload to S3 using boto3
+            s3_client = boto3.client('s3')
+            s3_client.upload_file(temp_path, bucket_name, bucket_key)
+        finally:
+            # Clean up
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
     else:
         with rasterio.open(output_tiff, 'w', **profile) as dst:
             dst.write(output_data, 1)
