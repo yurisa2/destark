@@ -43,9 +43,49 @@ echo "Partitions: $PARTITIONS"
 echo "Local mode: $LOCAL_MODE"
 echo ""
 
+# Find the code directory
+CODE_DIR=""
+POSSIBLE_DIRS=(
+    "/opt/raster-fuzzy"
+    "/home/hadoop/raster-fuzzy"
+    "/home/hadoop/destark"
+    "/home/ssm-user/destark"
+    "/tmp/raster-fuzzy"
+    "/usr/local/raster-fuzzy"
+    "/opt/destark"
+    "/home/hadoop"
+    "/tmp"
+)
+
+echo "Looking for code directory..."
+for dir in "${POSSIBLE_DIRS[@]}"; do
+    if [[ -d "$dir" ]] && [[ -f "$dir/app/raster_fuzzy_spark_ultra_optimized.py" ]]; then
+        CODE_DIR="$dir"
+        echo "Found code in: $CODE_DIR"
+        break
+    fi
+done
+
+if [[ -z "$CODE_DIR" ]]; then
+    echo "Error: Could not find the raster fuzzy code directory."
+    echo "Please check where your code is located and update the script."
+    echo ""
+    echo "Common locations to check:"
+    echo "  - Current directory: $(pwd)"
+    echo "  - Home directory: $HOME"
+    echo "  - /tmp directory"
+    echo ""
+    echo "You can also run the Python script directly:"
+    echo "  python3 /path/to/your/app/raster_fuzzy_spark_ultra_optimized.py [arguments]"
+    exit 1
+fi
+
 # Set up environment
-export PYTHONPATH="/opt/raster-fuzzy:$PYTHONPATH"
-cd /opt/raster-fuzzy
+export PYTHONPATH="$CODE_DIR:$PYTHONPATH"
+cd "$CODE_DIR"
+
+echo "Working directory: $(pwd)"
+echo "Python path: $PYTHONPATH"
 
 # Create working directory
 mkdir -p /tmp/raster_processing
@@ -59,7 +99,7 @@ if [[ "$CONFIG_FILE" == s3://* ]]; then
 fi
 
 # Build the command
-CMD="python3 /opt/raster-fuzzy/app/raster_fuzzy_spark_ultra_optimized.py"
+CMD="python3 $CODE_DIR/app/raster_fuzzy_spark_ultra_optimized.py"
 CMD="$CMD \"$SOCIAL_TIFF\" \"$ENVIRONMENTAL_TIFF\" \"$STRATEGIC_TIFF\" \"$OUTPUT_TIFF\""
 CMD="$CMD --config \"$CONFIG_FILE\""
 CMD="$CMD --block-size $CHUNK_SIZE"
