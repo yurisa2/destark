@@ -16,6 +16,10 @@ from pathlib import Path
 from datetime import datetime
 import psutil
 
+# Configure rasterio for S3 access
+os.environ['AWS_S3_ENDPOINT'] = 's3.amazonaws.com'
+os.environ['GDAL_DISABLE_READDIR_ON_OPEN'] = 'EMPTY_DIR'
+
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # Global fuzzy system cache to avoid recreation
@@ -214,13 +218,18 @@ def process_rasters_spark_ultra_optimized(
     
     # Handle S3 files
     def open_rasterio_safe(file_path):
-        """Open rasterio file with S3 support."""
-        if file_path.startswith('s3://'):
-            # For S3 files, we need to use rasterio's S3 support
-            import rasterio.io
-            return rasterio.open(file_path)
-        else:
-            return rasterio.open(file_path)
+        """Open raster file safely with explicit driver for .in files."""
+        try:
+            # For .in files, explicitly specify GTiff driver
+            if file_path.endswith('.in'):
+                print(f"Opening .in file as TIFF: {file_path}")
+                return rasterio.open(file_path, driver='GTiff')
+            else:
+                # For other files, use normal opening
+                return rasterio.open(file_path)
+        except Exception as e:
+            print(f"rasterio.open failed: {e}")
+            raise e
     
     # Read raster metadata
     with open_rasterio_safe(social_tiff) as src:
