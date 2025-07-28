@@ -119,8 +119,8 @@ run_spark_submit() {
         --deploy-mode cluster \
         --conf spark.yarn.appMasterEnv.PYTHONPATH="$CODE_DIR" \
         --conf spark.executorEnv.PYTHONPATH="$CODE_DIR" \
-        --conf spark.pyspark.python=/opt/conda/bin/python \
-        --conf spark.pyspark.driver.python=/opt/conda/bin/python \
+        --conf spark.pyspark.python=/usr/bin/python3 \
+        --conf spark.pyspark.driver.python=/usr/bin/python3 \
         --conf spark.executor.memory=8g \
         --conf spark.driver.memory=8g \
         --conf spark.executor.cores=4 \
