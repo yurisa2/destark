@@ -116,7 +116,7 @@ run_model() {
         "$output_file" \
         --config "$config_path" \
         --verbose \
-        --block-size 500 \
+        --block-size 100 \
         > logs/${model_name}_nohup.log 2>&1 &
     echo "✓ $model_name submitted (nohup, PID: $!)"
     echo ""

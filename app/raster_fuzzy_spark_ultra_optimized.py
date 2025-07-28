@@ -101,7 +101,12 @@ def process_block_ultra_optimized(chunk_data):
     from skfuzzy import control as ctrl
     import numpy as np
     
-    config, social_block, env_block, strat_block, block_start_row, nodata_value = chunk_data
+    config, social_list, env_list, strat_list, block_start_row, nodata_value = chunk_data
+    
+    # Convert lists back to NumPy arrays for processing
+    social_block = np.array(social_list, dtype=np.float32)
+    env_block = np.array(env_list, dtype=np.float32)
+    strat_block = np.array(strat_list, dtype=np.float32)
     
     # Create fuzzy system once per block (cached)
     simulation, input_vars, output_var_name = create_fuzzy_system_from_config(config)
@@ -159,7 +164,7 @@ def process_block_ultra_optimized(chunk_data):
 
 def process_rasters_spark_ultra_optimized(
     spark, social_tiff, environmental_tiff, strategic_tiff, output_tiff,
-    config_file, nodata_value=5.0, block_size=500, num_partitions=None):
+    config_file, nodata_value=5.0, block_size=100, num_partitions=None):
     """
     Process rasters using Spark with ultra-optimized settings.
     Reduced block_size to avoid serialization issues.
@@ -247,15 +252,22 @@ def process_rasters_spark_ultra_optimized(
             env_block = env_src.read(1, window=((block_start, block_end), (0, cols))).astype(np.float32)
             strat_block = strat_src.read(1, window=((block_start, block_end), (0, cols))).astype(np.float32)
             
+            # Convert to lists to reduce serialization overhead
+            social_list = social_block.tolist()
+            env_list = env_block.tolist()
+            strat_list = strat_block.tolist()
+            
             # Only pass essential data to reduce serialization size
-            block_jobs.append((config, social_block, env_block, strat_block, 
+            block_jobs.append((config, social_list, env_list, strat_list, 
                              block_start, nodata_value))
     
     print(f"Prepared {len(block_jobs)} blocks of up to {block_size} rows each.")
     
-    # Optimize Spark configuration
+    # Optimize Spark configuration - use fewer partitions to reduce memory pressure
     if num_partitions is None:
-        num_partitions = min(len(block_jobs), spark.sparkContext.defaultParallelism)
+        num_partitions = min(len(block_jobs), 4)  # Limit to 4 partitions max
+    
+    print(f"Using {num_partitions} partitions for processing")
     
     # Parallelize with optimized settings
     rdd = spark.sparkContext.parallelize(block_jobs, numSlices=num_partitions)
