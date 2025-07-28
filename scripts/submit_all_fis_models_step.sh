@@ -64,7 +64,7 @@ cat > temp_step.json << EOF
       "Args": [
         "bash",
         "-c",
-        "cd /home/ssm-user/destark && git pull origin main && chmod +x scripts/run_all_fis_models_emr.sh && ./scripts/run_all_fis_models_emr.sh \"$SOCIAL_TIFF\" \"$ENVIRONMENTAL_TIFF\" \"$STRATEGIC_TIFF\" \"$OUTPUT_PREFIX\""
+        "cd /mnt/destark && git pull origin main && chmod +x scripts/run_all_fis_models_emr.sh && ./scripts/run_all_fis_models_emr.sh \"$SOCIAL_TIFF\" \"$ENVIRONMENTAL_TIFF\" \"$STRATEGIC_TIFF\" \"$OUTPUT_PREFIX\""
       ]
     }
   }

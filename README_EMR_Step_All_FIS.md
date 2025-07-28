@@ -23,7 +23,7 @@ This guide explains how to submit an EMR step to run all fuzzy inference system 
 
 The EMR step will:
 
-1. **Navigate to your code directory** (`/home/ssm-user/destark`)
+1. **Navigate to your code directory** (`/mnt/destark`)
 2. **Pull latest changes** from git
 3. **Run all 7 FIS models** sequentially:
    - Maximum aggregation (`config_max.json`)
@@ -108,7 +108,7 @@ cat > step.json << 'EOF'
       "Args": [
         "bash",
         "-c",
-        "cd /home/ssm-user/destark && git pull origin main && chmod +x scripts/run_all_fis_models_emr.sh && ./scripts/run_all_fis_models_emr.sh s3://adveng-pipeline/unifile_test/so300m.in s3://adveng-pipeline/unifile_test/e300m.in s3://adveng-pipeline/unifile_test/s300m.in s3://adveng-pipeline/unifile_test/result_300m"
+        "cd /mnt/destark && git pull origin main && chmod +x scripts/run_all_fis_models_emr.sh && ./scripts/run_all_fis_models_emr.sh s3://adveng-pipeline/unifile_test/so300m.in s3://adveng-pipeline/unifile_test/e300m.in s3://adveng-pipeline/unifile_test/s300m.in s3://adveng-pipeline/unifile_test/result_300m"
       ]
     }
   }

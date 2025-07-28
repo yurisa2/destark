@@ -38,6 +38,7 @@ echo ""
 # Find the code directory
 CODE_DIR=""
 POSSIBLE_DIRS=(
+    "/mnt/destark"
     "/opt/raster-fuzzy"
     "/home/hadoop/raster-fuzzy"
     "/home/hadoop/destark"
