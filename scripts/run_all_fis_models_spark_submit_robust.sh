@@ -75,8 +75,8 @@ run_model() {
         --conf spark.default.parallelism=100 \
         --conf spark.yarn.maxAppAttempts=3 \
         --conf spark.yarn.am.attemptFailuresValidityInterval=1h \
-        --conf spark.yarn.max.executor.failures=8 \
-        --conf spark.yarn.executor.failuresValidityInterval=1h \
+        --conf spark.executor.maxNumFailures=8 \
+        --conf spark.executor.failuresValidityInterval=1h \
         --conf spark.yarn.appMasterEnv.JAVA_HOME="$JAVA_HOME" \
         --conf spark.executorEnv.JAVA_HOME="$JAVA_HOME" \
         --conf spark.yarn.appMasterEnv.PATH="$JAVA_HOME/bin:$PATH" \
