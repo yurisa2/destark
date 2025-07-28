@@ -236,11 +236,20 @@ def create_ultra_optimized_spark_session(app_name: str = "RasterFuzzyInferenceUl
     import os
     import sys
     import time
+    import socket
     
     # Set optimized environment variables
     python_path = '/opt/bitnami/spark/venv/bin/python' if os.path.exists('/opt/bitnami/spark/venv/bin/python') else '/opt/conda/bin/python' if os.path.exists('/opt/conda/bin/python') else sys.executable
     os.environ['PYSPARK_PYTHON'] = python_path
     os.environ['PYSPARK_DRIVER_PYTHON'] = python_path
+    
+    # Detect if we're running on EMR
+    is_emr = os.path.exists('/etc/emr-release') or 'emr' in socket.gethostname().lower()
+    
+    if is_emr:
+        # Use EMR's default Spark configuration
+        master_url = "yarn"
+        print("Detected EMR environment, using YARN as master")
     
     # Optimize Java settings - use system Java if available
     if 'JAVA_HOME' not in os.environ:
@@ -297,36 +306,55 @@ def create_ultra_optimized_spark_session(app_name: str = "RasterFuzzyInferenceUl
         
         for attempt in range(max_retries):
             try:
-                spark = SparkSession.builder \
-                    .appName(app_name) \
-                    .master(master_url) \
-                    .config("spark.executor.memory", "8g") \
-                    .config("spark.driver.memory", "8g") \
-                    .config("spark.executor.cores", "4") \
-                    .config("spark.sql.shuffle.partitions", "20") \
-                    .config("spark.python.worker.python", python_path) \
-                    .config("spark.driver.extraJavaOptions", "-Dlog4j.configuration=file:///dev/null") \
-                    .config("spark.executor.extraJavaOptions", "-Dlog4j.configuration=file:///dev/null") \
-                    .config("spark.sql.adaptive.enabled", "false") \
-                    .config("spark.sql.adaptive.coalescePartitions.enabled", "false") \
-                    .config("spark.submit.deployMode", "client") \
-                    .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer") \
-                    .config("spark.sql.adaptive.enabled", "false") \
-                    .config("spark.sql.adaptive.coalescePartitions.enabled", "false") \
-                    .config("spark.sql.adaptive.skewJoin.enabled", "false") \
-                    .config("spark.sql.adaptive.localShuffleReader.enabled", "false") \
-                    .config("spark.sql.adaptive.advisoryPartitionSizeInBytes", "128m") \
-                    .config("spark.sql.files.maxPartitionBytes", "128m") \
-                    .config("spark.sql.files.openCostInBytes", "4194304") \
-                    .config("spark.sql.broadcastTimeout", "300") \
-                    .config("spark.sql.autoBroadcastJoinThreshold", "10485760") \
-                    .config("spark.executor.extraJavaOptions", "-XX:+UseG1GC -XX:MaxGCPauseMillis=200") \
-                    .config("spark.driver.extraJavaOptions", "-XX:+UseG1GC -XX:MaxGCPauseMillis=200") \
-                    .config("spark.driver.host", "jupyter-spark") \
-                    .config("spark.driver.bindAddress", "0.0.0.0") \
-                    .config("spark.driver.port", "0") \
-                    .config("spark.driver.blockManager.port", "0") \
-                    .getOrCreate()
+                if is_emr:
+                    # EMR-optimized configuration
+                    spark = SparkSession.builder \
+                        .appName(app_name) \
+                        .master(master_url) \
+                        .config("spark.executor.memory", "8g") \
+                        .config("spark.driver.memory", "8g") \
+                        .config("spark.executor.cores", "4") \
+                        .config("spark.sql.shuffle.partitions", "20") \
+                        .config("spark.python.worker.python", python_path) \
+                        .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer") \
+                        .config("spark.sql.files.maxPartitionBytes", "128m") \
+                        .config("spark.sql.broadcastTimeout", "300") \
+                        .config("spark.sql.autoBroadcastJoinThreshold", "10485760") \
+                        .config("spark.executor.extraJavaOptions", "-XX:+UseG1GC -XX:MaxGCPauseMillis=200") \
+                        .config("spark.driver.extraJavaOptions", "-XX:+UseG1GC -XX:MaxGCPauseMillis=200") \
+                        .getOrCreate()
+                else:
+                    # Docker/standalone configuration
+                    spark = SparkSession.builder \
+                        .appName(app_name) \
+                        .master(master_url) \
+                        .config("spark.executor.memory", "8g") \
+                        .config("spark.driver.memory", "8g") \
+                        .config("spark.executor.cores", "4") \
+                        .config("spark.sql.shuffle.partitions", "20") \
+                        .config("spark.python.worker.python", python_path) \
+                        .config("spark.driver.extraJavaOptions", "-Dlog4j.configuration=file:///dev/null") \
+                        .config("spark.executor.extraJavaOptions", "-Dlog4j.configuration=file:///dev/null") \
+                        .config("spark.sql.adaptive.enabled", "false") \
+                        .config("spark.sql.adaptive.coalescePartitions.enabled", "false") \
+                        .config("spark.submit.deployMode", "client") \
+                        .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer") \
+                        .config("spark.sql.adaptive.enabled", "false") \
+                        .config("spark.sql.adaptive.coalescePartitions.enabled", "false") \
+                        .config("spark.sql.adaptive.skewJoin.enabled", "false") \
+                        .config("spark.sql.adaptive.localShuffleReader.enabled", "false") \
+                        .config("spark.sql.adaptive.advisoryPartitionSizeInBytes", "128m") \
+                        .config("spark.sql.files.maxPartitionBytes", "128m") \
+                        .config("spark.sql.files.openCostInBytes", "4194304") \
+                        .config("spark.sql.broadcastTimeout", "300") \
+                        .config("spark.sql.autoBroadcastJoinThreshold", "10485760") \
+                        .config("spark.executor.extraJavaOptions", "-XX:+UseG1GC -XX:MaxGCPauseMillis=200") \
+                        .config("spark.driver.extraJavaOptions", "-XX:+UseG1GC -XX:MaxGCPauseMillis=200") \
+                        .config("spark.driver.host", "jupyter-spark") \
+                        .config("spark.driver.bindAddress", "0.0.0.0") \
+                        .config("spark.driver.port", "0") \
+                        .config("spark.driver.blockManager.port", "0") \
+                        .getOrCreate()
                 
                 # Test the connection - use a more compatible approach
                 try:
@@ -391,12 +419,20 @@ Examples:
     args = parser.parse_args()
     
     # Validate inputs
+    def check_file_exists(file_path):
+        if file_path.startswith('s3://'):
+            # For S3 files, we'll let the processing handle the validation
+            # since the actual file access will be done by Spark
+            return True
+        else:
+            return os.path.exists(file_path)
+    
     for tiff_file in [args.social_tiff, args.environmental_tiff, args.strategic_tiff]:
-        if not os.path.exists(tiff_file):
+        if not check_file_exists(tiff_file):
             print(f"Error: Input file not found: {tiff_file}")
             sys.exit(1)
     
-    if not os.path.exists(args.config):
+    if not check_file_exists(args.config):
         print(f"Error: Configuration file not found: {args.config}")
         sys.exit(1)
     
