@@ -488,8 +488,15 @@ Examples:
             print(f"Error: Input file not found: {tiff_file}")
             sys.exit(1)
     
+    # Check config file exists
     if not check_file_exists(args.config):
         print(f"Error: Configuration file not found: {args.config}")
+        print(f"Current working directory: {os.getcwd()}")
+        print(f"Config file path: {args.config}")
+        if os.path.exists(args.config):
+            print(f"File exists but check_file_exists returned False")
+        else:
+            print(f"File does not exist at path")
         sys.exit(1)
     
     # Create Spark session with fallback to local mode
