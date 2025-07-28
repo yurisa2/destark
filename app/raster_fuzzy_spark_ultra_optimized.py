@@ -173,8 +173,18 @@ def process_rasters_spark_ultra_optimized(
     with open(config_file, 'r') as f:
         config = json.load(f)
     
+    # Handle S3 files
+    def open_rasterio_safe(file_path):
+        """Open rasterio file with S3 support."""
+        if file_path.startswith('s3://'):
+            # For S3 files, we need to use rasterio's S3 support
+            import rasterio.io
+            return rasterio.open(file_path)
+        else:
+            return rasterio.open(file_path)
+    
     # Read raster metadata
-    with rasterio.open(social_tiff) as src:
+    with open_rasterio_safe(social_tiff) as src:
         rows, cols = src.shape
         profile = src.profile.copy()
     
@@ -183,9 +193,9 @@ def process_rasters_spark_ultra_optimized(
     # Prepare optimized block jobs
     block_jobs = []
     
-    with rasterio.open(social_tiff) as social_src, \
-         rasterio.open(environmental_tiff) as env_src, \
-         rasterio.open(strategic_tiff) as strat_src:
+    with open_rasterio_safe(social_tiff) as social_src, \
+         open_rasterio_safe(environmental_tiff) as env_src, \
+         open_rasterio_safe(strategic_tiff) as strat_src:
         
         for block_start in range(0, rows, block_size):
             block_end = min(block_start + block_size, rows)
@@ -221,8 +231,23 @@ def process_rasters_spark_ultra_optimized(
     profile.update(dtype=np.float32, count=1, nodata=nodata_value)
     
     print(f"Writing output raster to: {output_tiff}")
-    with rasterio.open(output_tiff, 'w', **profile) as dst:
-        dst.write(output_data, 1)
+    if output_tiff.startswith('s3://'):
+        # For S3 output, write to temporary file first
+        import tempfile
+        import subprocess
+        
+        with tempfile.NamedTemporaryFile(suffix='.tif', delete=False) as tmp_file:
+            temp_path = tmp_file.name
+        
+        with rasterio.open(temp_path, 'w', **profile) as dst:
+            dst.write(output_data, 1)
+        
+        # Upload to S3
+        subprocess.run(['aws', 's3', 'cp', temp_path, output_tiff], check=True)
+        os.unlink(temp_path)
+    else:
+        with rasterio.open(output_tiff, 'w', **profile) as dst:
+            dst.write(output_data, 1)
     
     print(f"Output value range: {np.nanmin(output_data):.2f} to {np.nanmax(output_data):.2f}")
     print(f"Processing complete. Output saved to: {output_tiff}")
