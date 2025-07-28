@@ -1,39 +1,9 @@
 #!/bin/bash
 
-# Run All FIS Models on EMR Script
-# This script runs all fuzzy inference system configurations sequentially on EMR
-# and outputs one file for each model
+# Run All FIS Models on EMR
+# This script runs all available FIS configurations sequentially
 
-set -e
-
-# Parse arguments
-SOCIAL_TIFF="$1"
-ENVIRONMENTAL_TIFF="$2"
-STRATEGIC_TIFF="$3"
-OUTPUT_PREFIX="$4"
-S3_CONFIG_PREFIX="${5:-s3://adveng-pipeline/unifile_test}"
-
-# Validate inputs
-if [[ -z "$SOCIAL_TIFF" || -z "$ENVIRONMENTAL_TIFF" || -z "$STRATEGIC_TIFF" || -z "$OUTPUT_PREFIX" ]]; then
-    echo "Usage: $0 <social_tiff> <environmental_tiff> <strategic_tiff> <output_prefix> [s3_config_prefix]"
-    echo ""
-    echo "Examples:"
-    echo "  # Run all models with S3 files"
-    echo "  $0 s3://bucket/input/social.tif s3://bucket/input/env.tif s3://bucket/input/strat.tif s3://bucket/output/result"
-    echo ""
-    echo "  # Run with custom S3 config prefix"
-    echo "  $0 s3://bucket/input/social.tif s3://bucket/input/env.tif s3://bucket/input/strat.tif s3://bucket/output/result s3://bucket/configs"
-    exit 1
-fi
-
-echo "=== Running All FIS Models on EMR ==="
-echo "Input files:"
-echo "  Social: $SOCIAL_TIFF"
-echo "  Environmental: $ENVIRONMENTAL_TIFF"
-echo "  Strategic: $STRATEGIC_TIFF"
-echo "Output prefix: $OUTPUT_PREFIX"
-echo "S3 Config prefix: $S3_CONFIG_PREFIX"
-echo ""
+set -e  # Exit on any error
 
 # Find the code directory
 CODE_DIR=""
@@ -50,18 +20,17 @@ POSSIBLE_DIRS=(
     "/tmp"
 )
 
-echo "Looking for code directory..."
 for dir in "${POSSIBLE_DIRS[@]}"; do
-    if [[ -d "$dir" ]] && [[ -f "$dir/app/raster_fuzzy_spark_ultra_optimized.py" ]]; then
+    if [ -d "$dir" ] && [ -f "$dir/app/raster_fuzzy_spark_ultra_optimized.py" ]; then
         CODE_DIR="$dir"
-        echo "Found code in: $CODE_DIR"
+        echo "Found code directory: $CODE_DIR"
         break
     fi
 done
 
-if [[ -z "$CODE_DIR" ]]; then
-    echo "Error: Could not find the raster fuzzy code directory."
-    echo "Please check where your code is located and update the script."
+if [ -z "$CODE_DIR" ]; then
+    echo "Error: Could not find the code directory"
+    echo "Searched in: ${POSSIBLE_DIRS[*]}"
     exit 1
 fi
 
@@ -69,116 +38,101 @@ fi
 export PYTHONPATH="$CODE_DIR:$PYTHONPATH"
 cd "$CODE_DIR"
 
-echo "Working directory: $(pwd)"
-echo "Python path: $PYTHONPATH"
+# Check if we have the required arguments
+if [ $# -ne 4 ]; then
+    echo "Usage: $0 <social_tiff> <environmental_tiff> <strategic_tiff> <output_prefix>"
+    echo ""
+    echo "Example:"
+    echo "  $0 s3://bucket/input/social.tif s3://bucket/input/env.tif s3://bucket/input/strat.tif s3://bucket/output/result"
+    echo ""
+    echo "This will create:"
+    echo "  s3://bucket/output/result_max.tif"
+    echo "  s3://bucket/output/result_median.tif"
+    echo "  s3://bucket/output/result_minimum.tif"
+    echo "  s3://bucket/output/result_mode.tif"
+    echo "  s3://bucket/output/result_round_up.tif"
+    echo "  s3://bucket/output/result_round_down.tif"
+    exit 1
+fi
 
-# Create working directory
-mkdir -p /tmp/raster_processing
-cd /tmp/raster_processing
+SOCIAL_TIFF="$1"
+ENVIRONMENTAL_TIFF="$2"
+STRATEGIC_TIFF="$3"
+OUTPUT_PREFIX="$4"
 
-# Define all FIS configurations with S3 paths
+echo "=== Running All FIS Models ==="
+echo "Code directory: $CODE_DIR"
+echo "Social: $SOCIAL_TIFF"
+echo "Environmental: $ENVIRONMENTAL_TIFF"
+echo "Strategic: $STRATEGIC_TIFF"
+echo "Output prefix: $OUTPUT_PREFIX"
+echo ""
+
+# Define all FIS configurations
 declare -A FIS_CONFIGS=(
-    ["max"]="${S3_CONFIG_PREFIX}/config_max.json"
-    ["minimum"]="${S3_CONFIG_PREFIX}/config_minimum.json"
-    ["median"]="${S3_CONFIG_PREFIX}/config_median.json"
-    ["mode"]="${S3_CONFIG_PREFIX}/config_mode.json"
-    ["round_up"]="${S3_CONFIG_PREFIX}/config_round_up.json"
-    ["round_down"]="${S3_CONFIG_PREFIX}/config_round_down.json"
-    ["default"]="${S3_CONFIG_PREFIX}/raster_fis_config.json"
+    ["max"]="app/config/config_max.json"
+    ["median"]="app/config/config_median.json"
+    ["minimum"]="app/config/config_minimum.json"
+    ["mode"]="app/config/config_mode.json"
+    ["round_up"]="app/config/config_round_up.json"
+    ["round_down"]="app/config/config_round_down.json"
 )
 
-# Create logs directory
-mkdir -p logs
+# Create temporary directory for config files
+TEMP_DIR=$(mktemp -d)
+echo "Using temporary directory: $TEMP_DIR"
 
-# Generate timestamp for log files
-TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-LOG_FILE="logs/all_fis_models_emr_${TIMESTAMP}.log"
-ERROR_LOG="logs/all_fis_models_emr_${TIMESTAMP}_error.log"
-
-echo "Logs will be saved to: $LOG_FILE"
-echo "Errors will be saved to: $ERROR_LOG"
-echo ""
-
-# Function to run a single FIS model
-run_fis_model() {
-    local model_name="$1"
-    local s3_config_file="$2"
-    local output_file="$3"
+# Function to download config from S3 if needed
+download_config() {
+    local config_path="$1"
+    local temp_path="$2"
     
-    echo "=== Running $model_name model ==="
-    echo "S3 Config: $s3_config_file"
-    echo "Output: $output_file"
-    echo ""
-    
-    # Download config file from S3
-    local local_config_file="./config_${model_name}.json"
-    echo "Downloading config file from S3..."
-    if aws s3 cp "$s3_config_file" "$local_config_file" 2>/dev/null; then
-        echo "✓ Config file downloaded successfully"
+    if [[ "$config_path" == s3://* ]]; then
+        echo "Downloading config from S3: $config_path"
+        aws s3 cp "$config_path" "$temp_path"
+        echo "$temp_path"
     else
-        echo "✗ Failed to download config file: $s3_config_file"
-        echo "Skipping $model_name model..."
-        return 1
+        echo "$config_path"
     fi
-    
-    # Build the command
-    CMD="python3 $CODE_DIR/app/raster_fuzzy_spark_ultra_optimized.py"
-    CMD="$CMD \"$SOCIAL_TIFF\" \"$ENVIRONMENTAL_TIFF\" \"$STRATEGIC_TIFF\" \"$output_file\""
-    CMD="$CMD --config \"$local_config_file\""
-    CMD="$CMD --block-size 1000"
-    CMD="$CMD --partitions 8"
-    CMD="$CMD --verbose"
-    
-    echo "Command: $CMD"
-    echo ""
-    
-    # Execute the command
-    if eval $CMD 2>> "$ERROR_LOG"; then
-        echo "✓ $model_name model completed successfully!"
-        echo "Output saved to: $output_file"
-    else
-        echo "✗ $model_name model failed!"
-        echo "Check error log: $ERROR_LOG"
-        return 1
-    fi
-    
-    # Clean up local config file
-    rm -f "$local_config_file"
-    
-    echo ""
 }
 
-# Run all FIS models
-echo "Starting sequential processing of all FIS models..."
-echo ""
-
+# Process each FIS configuration
 for model_name in "${!FIS_CONFIGS[@]}"; do
-    s3_config_file="${FIS_CONFIGS[$model_name]}"
+    config_path="${FIS_CONFIGS[$model_name]}"
     output_file="${OUTPUT_PREFIX}_${model_name}.tif"
     
-    # Run the model
-    if ! run_fis_model "$model_name" "$s3_config_file" "$output_file"; then
-        echo "Error: Failed to run $model_name model"
-        echo "Continuing with next model..."
-        echo ""
-    fi
+    echo "=== Processing $model_name model ==="
+    echo "Config: $config_path"
+    echo "Output: $output_file"
     
-    echo "---"
+    # Download config if it's on S3
+    local_config=$(download_config "$config_path" "$TEMP_DIR/config_${model_name}.json")
+    
+    # Run the processing
+    echo "Starting processing..."
+    start_time=$(date +%s)
+    
+    python3 app/raster_fuzzy_spark_ultra_optimized.py \
+        "$SOCIAL_TIFF" \
+        "$ENVIRONMENTAL_TIFF" \
+        "$STRATEGIC_TIFF" \
+        "$output_file" \
+        --config "$local_config" \
+        --local \
+        --verbose
+    
+    end_time=$(date +%s)
+    duration=$((end_time - start_time))
+    
+    echo "✓ $model_name model completed in ${duration} seconds"
+    echo "  Output: $output_file"
+    echo ""
 done
 
-echo "=== All FIS Models Processing Complete ==="
-echo ""
-echo "Summary:"
-echo "Log file: $LOG_FILE"
-echo "Error log: $ERROR_LOG"
-echo ""
-
-# List all output files
-echo "Generated output files:"
+# Clean up
+rm -rf "$TEMP_DIR"
+echo "=== All FIS Models Completed ==="
+echo "Output files:"
 for model_name in "${!FIS_CONFIGS[@]}"; do
-    output_file="${OUTPUT_PREFIX}_${model_name}.tif"
-    echo "  $model_name: $output_file"
-done
-
-echo ""
-echo "✓ All FIS models processing completed!" 
+    echo "  ${OUTPUT_PREFIX}_${model_name}.tif"
+done 

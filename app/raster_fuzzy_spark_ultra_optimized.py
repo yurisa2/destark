@@ -447,27 +447,22 @@ Examples:
         """
     )
     
-    parser.add_argument('social_tiff', help='Path to social factor TIFF file')
-    parser.add_argument('environmental_tiff', help='Path to environmental factor TIFF file')
-    parser.add_argument('strategic_tiff', help='Path to strategic factor TIFF file')
-    parser.add_argument('output_tiff', help='Path for output TIFF file')
-    
-    parser.add_argument('--config', '-c', default='raster_fis_config.json',
-                       help='Path to configuration JSON file (default: raster_fis_config.json)')
-    parser.add_argument('--nodata', type=float, default=5.0,
-                       help='NoData value for output raster (default: 5.0)')
-    parser.add_argument('--block-size', type=int, default=1000,
-                       help='Number of rows per block (default: 1000)')
-    parser.add_argument('--partitions', type=int, default=None,
-                       help='Number of Spark partitions (default: auto)')
-    parser.add_argument('--local', action='store_true',
-                       help='Run in local mode for testing')
-    parser.add_argument('--master', default='spark://spark-master:7077',
-                       help='Spark master URL (default: spark://spark-master:7077)')
-    parser.add_argument('--verbose', '-v', action='store_true',
-                       help='Enable verbose output')
+    parser.add_argument('social_tiff', help='Path to social raster file')
+    parser.add_argument('environmental_tiff', help='Path to environmental raster file')
+    parser.add_argument('strategic_tiff', help='Path to strategic raster file')
+    parser.add_argument('output_tiff', help='Path to output raster file')
+    parser.add_argument('--config', '-c', required=True, help='Path to FIS configuration JSON file')
+    parser.add_argument('--nodata', '-n', type=float, default=5.0, help='NoData value (default: 5.0)')
+    parser.add_argument('--block-size', '-b', type=int, default=1000, help='Block size for processing (default: 1000)')
+    parser.add_argument('--partitions', '-p', type=int, help='Number of partitions (default: auto)')
+    parser.add_argument('--local', action='store_true', help='Force local mode (bypass YARN)')
+    parser.add_argument('--verbose', '-v', action='store_true', help='Enable verbose output')
     
     args = parser.parse_args()
+    
+    # Set up logging
+    log_level = logging.DEBUG if args.verbose else logging.INFO
+    logging.basicConfig(level=log_level, format='%(asctime)s - %(levelname)s - %(message)s')
     
     # Validate inputs
     def check_file_exists(file_path):
@@ -487,32 +482,21 @@ Examples:
         print(f"Error: Configuration file not found: {args.config}")
         sys.exit(1)
     
-    # Create output directory
-    output_dir = os.path.dirname(args.output_tiff)
-    if output_dir and not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    
+    # Create Spark session with fallback to local mode
     try:
-        # Create ultra-optimized Spark session
-        print(f"Creating Ultra-Optimized Spark session...")
-        spark = create_ultra_optimized_spark_session(
-            app_name="RasterFuzzyInferenceUltra",
-            master_url=args.master,
-            local_mode=args.local
-        )
-        
-        # Process rasters with ultra-optimized processing
-        print(f"Processing rasters with Ultra-Optimized Spark...")
-        print(f"  Social: {args.social_tiff}")
-        print(f"  Environmental: {args.environmental_tiff}")
-        print(f"  Strategic: {args.strategic_tiff}")
-        print(f"  Output: {args.output_tiff}")
-        print(f"  Config: {args.config}")
-        print(f"  NoData value: {args.nodata}")
-        print(f"  Block size: {args.block_size} rows")
-        print(f"  Partitions: {args.partitions or 'auto'}")
-        print(f"  Mode: {'Local' if args.local else 'Cluster'}")
-        
+        if args.local:
+            print("Forcing local mode as requested...")
+            spark = create_ultra_optimized_spark_session(local_mode=True)
+        else:
+            print("Creating Ultra-Optimized Spark session...")
+            spark = create_ultra_optimized_spark_session()
+    except Exception as e:
+        print(f"Failed to create Spark session: {e}")
+        print("Falling back to local mode...")
+        spark = create_ultra_optimized_spark_session(local_mode=True)
+    
+    # Process the rasters
+    try:
         process_rasters_spark_ultra_optimized(
             spark=spark,
             social_tiff=args.social_tiff,
@@ -524,16 +508,17 @@ Examples:
             block_size=args.block_size,
             num_partitions=args.partitions
         )
-        
-        print("Ultra-optimized Spark processing completed successfully!")
-        spark.stop()
+        print(f"✓ Processing completed successfully!")
+        print(f"  Output saved to: {args.output_tiff}")
         
     except Exception as e:
-        print(f"Ultra-optimized Spark processing failed: {e}")
+        print(f"✗ Processing failed: {e}")
         if args.verbose:
             import traceback
             traceback.print_exc()
         sys.exit(1)
+    finally:
+        spark.stop()
 
 if __name__ == "__main__":
     main() 
