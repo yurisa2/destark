@@ -3,7 +3,7 @@
 # Run All FIS Models using Spark Submit on EMR Cluster
 # This script runs all available FIS configurations using spark-submit
 # to utilize the full power of the EMR cluster
-# FIXED VERSION: Handles Java version compatibility issues
+# FIXED VERSION: Handles Java version compatibility issues and EMR configuration
 
 set -e  # Exit on any error
 
@@ -38,6 +38,42 @@ fi
 echo "Updated Java version:"
 java -version 2>&1 || echo "Java still not working"
 echo "JAVA_HOME: $JAVA_HOME"
+echo ""
+
+# Set EMR/Hadoop configuration directories
+echo "=== Setting EMR/Hadoop Configuration ==="
+if [ -d "/etc/hadoop/conf" ]; then
+    export HADOOP_CONF_DIR="/etc/hadoop/conf"
+    echo "Set HADOOP_CONF_DIR to /etc/hadoop/conf"
+elif [ -d "/etc/emr/conf" ]; then
+    export HADOOP_CONF_DIR="/etc/emr/conf"
+    echo "Set HADOOP_CONF_DIR to /etc/emr/conf"
+elif [ -d "/usr/lib/hadoop/etc/hadoop" ]; then
+    export HADOOP_CONF_DIR="/usr/lib/hadoop/etc/hadoop"
+    echo "Set HADOOP_CONF_DIR to /usr/lib/hadoop/etc/hadoop"
+else
+    echo "Warning: HADOOP_CONF_DIR not found in standard locations"
+    echo "Available Hadoop config directories:"
+    find /etc -name "*hadoop*" -type d 2>/dev/null | head -5
+    find /usr -name "*hadoop*" -type d 2>/dev/null | head -5
+    echo ""
+fi
+
+if [ -d "/etc/hadoop/conf" ]; then
+    export YARN_CONF_DIR="/etc/hadoop/conf"
+    echo "Set YARN_CONF_DIR to /etc/hadoop/conf"
+elif [ -d "/etc/emr/conf" ]; then
+    export YARN_CONF_DIR="/etc/emr/conf"
+    echo "Set YARN_CONF_DIR to /etc/emr/conf"
+elif [ -d "/usr/lib/hadoop/etc/hadoop" ]; then
+    export YARN_CONF_DIR="/usr/lib/hadoop/etc/hadoop"
+    echo "Set YARN_CONF_DIR to /usr/lib/hadoop/etc/hadoop"
+else
+    echo "Warning: YARN_CONF_DIR not found in standard locations"
+fi
+
+echo "HADOOP_CONF_DIR: $HADOOP_CONF_DIR"
+echo "YARN_CONF_DIR: $YARN_CONF_DIR"
 echo ""
 
 # Find the code directory
@@ -156,6 +192,14 @@ run_spark_submit() {
     
     # Ensure JAVA_HOME is set for spark-submit
     export JAVA_HOME="${JAVA_HOME:-/usr/lib/jvm/java-17-amazon-corretto}"
+    
+    # Ensure Hadoop/YARN config directories are set
+    if [ -z "$HADOOP_CONF_DIR" ] && [ -d "/etc/hadoop/conf" ]; then
+        export HADOOP_CONF_DIR="/etc/hadoop/conf"
+    fi
+    if [ -z "$YARN_CONF_DIR" ] && [ -d "/etc/hadoop/conf" ]; then
+        export YARN_CONF_DIR="/etc/hadoop/conf"
+    fi
     
     spark-submit \
         --master yarn \
