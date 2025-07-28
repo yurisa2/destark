@@ -159,14 +159,14 @@ download_and_upload_config() {
     local model_name="$2"
     
     if [[ "$config_path" == s3://* ]]; then
-        echo "Downloading config from S3: $config_path"
+        echo "Downloading config from S3: $config_path" >&2
         local temp_path="$TEMP_DIR/config_${model_name}.json"
-        aws s3 cp "$config_path" "$temp_path"
+        aws s3 cp "$config_path" "$temp_path" >&2
         
         # Upload to a new S3 location that will be accessible to Spark
         local spark_config_path="s3://adveng-pipeline/unifile_test/spark_config_${model_name}.json"
-        echo "Uploading config to Spark-accessible location: $spark_config_path"
-        aws s3 cp "$temp_path" "$spark_config_path"
+        echo "Uploading config to Spark-accessible location: $spark_config_path" >&2
+        aws s3 cp "$temp_path" "$spark_config_path" >&2
         
         echo "$spark_config_path"
     else
@@ -185,7 +185,11 @@ run_spark_submit() {
     echo "Output: $output_file"
     
     # Download config and upload to Spark-accessible S3 location
+    echo "Processing config for $model_name..."
     spark_config_path=$(download_and_upload_config "$config_path" "$model_name")
+    
+    echo "DEBUG: Original config path: $config_path"
+    echo "DEBUG: Spark config path: $spark_config_path"
     
     # Test Spark before running
     echo "Testing Spark configuration..."
