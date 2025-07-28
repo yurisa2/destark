@@ -1,0 +1,14 @@
+[
+  {
+    "Name": "Install Essential Python Packages",
+    "ActionOnFailure": "CONTINUE",
+    "HadoopJarStep": {
+      "Jar": "command-runner.jar",
+      "Args": [
+        "bash",
+        "-c",
+        "python3 -m pip install --user python-dateutil numpy scipy pandas rasterio scikit-fuzzy boto3 s3fs && python3 -c 'import dateutil, numpy, rasterio, skfuzzy, boto3, s3fs; print(\"✓ Essential packages installed successfully\")'"
+      ]
+    }
+  }
+] 

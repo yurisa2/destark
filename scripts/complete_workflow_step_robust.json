@@ -1,0 +1,14 @@
+[
+  {
+    "Name": "Complete FIS Workflow - Install Packages and Run All Models",
+    "ActionOnFailure": "CONTINUE",
+    "HadoopJarStep": {
+      "Jar": "command-runner.jar",
+      "Args": [
+        "bash",
+        "-c",
+        "cd /mnt/destark && git pull origin main && chmod +x scripts/complete_workflow_robust.sh && ./scripts/complete_workflow_robust.sh"
+      ]
+    }
+  }
+] 
