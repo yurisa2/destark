@@ -271,7 +271,10 @@ def create_ultra_optimized_spark_session(app_name: str = "RasterFuzzyInferenceUl
     # Detect if we're running on EMR
     is_emr = os.path.exists('/etc/emr-release') or 'emr' in socket.gethostname().lower()
     
-    if is_emr:
+    # Detect if we're running via spark-submit (which means we're already on YARN)
+    is_spark_submit = 'SPARK_SUBMIT' in os.environ or 'SPARK_APPLICATION_ID' in os.environ
+    
+    if is_emr and not is_spark_submit:
         # Use EMR's default Spark configuration
         master_url = "yarn"
         print("Detected EMR environment, using YARN as master")
@@ -339,7 +342,7 @@ def create_ultra_optimized_spark_session(app_name: str = "RasterFuzzyInferenceUl
         
         for attempt in range(max_retries):
             try:
-                if is_emr:
+                if is_emr and not is_spark_submit:
                     try:
                         # EMR-optimized configuration with YARN
                         spark = SparkSession.builder \
@@ -375,37 +378,44 @@ def create_ultra_optimized_spark_session(app_name: str = "RasterFuzzyInferenceUl
                             .config("spark.driver.extraJavaOptions", "-XX:+UseG1GC -XX:MaxGCPauseMillis=200") \
                             .getOrCreate()
                 else:
-                    # Docker/standalone configuration
-                    spark = SparkSession.builder \
-                        .appName(app_name) \
-                        .master(master_url) \
-                        .config("spark.executor.memory", "8g") \
-                        .config("spark.driver.memory", "8g") \
-                        .config("spark.executor.cores", "4") \
-                        .config("spark.sql.shuffle.partitions", "20") \
-                        .config("spark.python.worker.python", python_path) \
-                        .config("spark.driver.extraJavaOptions", "-Dlog4j.configuration=file:///dev/null") \
-                        .config("spark.executor.extraJavaOptions", "-Dlog4j.configuration=file:///dev/null") \
-                        .config("spark.sql.adaptive.enabled", "false") \
-                        .config("spark.sql.adaptive.coalescePartitions.enabled", "false") \
-                        .config("spark.submit.deployMode", "client") \
-                        .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer") \
-                        .config("spark.sql.adaptive.enabled", "false") \
-                        .config("spark.sql.adaptive.coalescePartitions.enabled", "false") \
-                        .config("spark.sql.adaptive.skewJoin.enabled", "false") \
-                        .config("spark.sql.adaptive.localShuffleReader.enabled", "false") \
-                        .config("spark.sql.adaptive.advisoryPartitionSizeInBytes", "128m") \
-                        .config("spark.sql.files.maxPartitionBytes", "128m") \
-                        .config("spark.sql.files.openCostInBytes", "4194304") \
-                        .config("spark.sql.broadcastTimeout", "300") \
-                        .config("spark.sql.autoBroadcastJoinThreshold", "10485760") \
-                        .config("spark.executor.extraJavaOptions", "-XX:+UseG1GC -XX:MaxGCPauseMillis=200") \
-                        .config("spark.driver.extraJavaOptions", "-XX:+UseG1GC -XX:MaxGCPauseMillis=200") \
-                        .config("spark.driver.host", "jupyter-spark") \
-                        .config("spark.driver.bindAddress", "0.0.0.0") \
-                        .config("spark.driver.port", "0") \
-                        .config("spark.driver.blockManager.port", "0") \
-                        .getOrCreate()
+                    # Docker/standalone configuration or spark-submit (let spark-submit handle the config)
+                    if is_spark_submit:
+                        print("Detected spark-submit, using existing Spark configuration")
+                        spark = SparkSession.builder \
+                            .appName(app_name) \
+                            .getOrCreate()
+                    else:
+                        # Docker/standalone configuration
+                        spark = SparkSession.builder \
+                            .appName(app_name) \
+                            .master(master_url) \
+                            .config("spark.executor.memory", "8g") \
+                            .config("spark.driver.memory", "8g") \
+                            .config("spark.executor.cores", "4") \
+                            .config("spark.sql.shuffle.partitions", "20") \
+                            .config("spark.python.worker.python", python_path) \
+                            .config("spark.driver.extraJavaOptions", "-Dlog4j.configuration=file:///dev/null") \
+                            .config("spark.executor.extraJavaOptions", "-Dlog4j.configuration=file:///dev/null") \
+                            .config("spark.sql.adaptive.enabled", "false") \
+                            .config("spark.sql.adaptive.coalescePartitions.enabled", "false") \
+                            .config("spark.submit.deployMode", "client") \
+                            .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer") \
+                            .config("spark.sql.adaptive.enabled", "false") \
+                            .config("spark.sql.adaptive.coalescePartitions.enabled", "false") \
+                            .config("spark.sql.adaptive.skewJoin.enabled", "false") \
+                            .config("spark.sql.adaptive.localShuffleReader.enabled", "false") \
+                            .config("spark.sql.adaptive.advisoryPartitionSizeInBytes", "128m") \
+                            .config("spark.sql.files.maxPartitionBytes", "128m") \
+                            .config("spark.sql.files.openCostInBytes", "4194304") \
+                            .config("spark.sql.broadcastTimeout", "300") \
+                            .config("spark.sql.autoBroadcastJoinThreshold", "10485760") \
+                            .config("spark.executor.extraJavaOptions", "-XX:+UseG1GC -XX:MaxGCPauseMillis=200") \
+                            .config("spark.driver.extraJavaOptions", "-XX:+UseG1GC -XX:MaxGCPauseMillis=200") \
+                            .config("spark.driver.host", "jupyter-spark") \
+                            .config("spark.driver.bindAddress", "0.0.0.0") \
+                            .config("spark.driver.port", "0") \
+                            .config("spark.driver.blockManager.port", "0") \
+                            .getOrCreate()
                 
                 # Test the connection - use a more compatible approach
                 try:
