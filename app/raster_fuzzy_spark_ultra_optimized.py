@@ -275,6 +275,14 @@ def create_ultra_optimized_spark_session(app_name: str = "RasterFuzzyInferenceUl
         # Use EMR's default Spark configuration
         master_url = "yarn"
         print("Detected EMR environment, using YARN as master")
+        
+        # Set EMR environment variables
+        if 'HADOOP_CONF_DIR' not in os.environ:
+            os.environ['HADOOP_CONF_DIR'] = '/etc/hadoop/conf'
+        if 'YARN_CONF_DIR' not in os.environ:
+            os.environ['YARN_CONF_DIR'] = '/etc/hadoop/conf'
+        if 'SPARK_CONF_DIR' not in os.environ:
+            os.environ['SPARK_CONF_DIR'] = '/etc/spark/conf'
     
     # Optimize Java settings - use system Java if available
     if 'JAVA_HOME' not in os.environ:
@@ -332,22 +340,40 @@ def create_ultra_optimized_spark_session(app_name: str = "RasterFuzzyInferenceUl
         for attempt in range(max_retries):
             try:
                 if is_emr:
-                    # EMR-optimized configuration
-                    spark = SparkSession.builder \
-                        .appName(app_name) \
-                        .master(master_url) \
-                        .config("spark.executor.memory", "8g") \
-                        .config("spark.driver.memory", "8g") \
-                        .config("spark.executor.cores", "4") \
-                        .config("spark.sql.shuffle.partitions", "20") \
-                        .config("spark.python.worker.python", python_path) \
-                        .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer") \
-                        .config("spark.sql.files.maxPartitionBytes", "128m") \
-                        .config("spark.sql.broadcastTimeout", "300") \
-                        .config("spark.sql.autoBroadcastJoinThreshold", "10485760") \
-                        .config("spark.executor.extraJavaOptions", "-XX:+UseG1GC -XX:MaxGCPauseMillis=200") \
-                        .config("spark.driver.extraJavaOptions", "-XX:+UseG1GC -XX:MaxGCPauseMillis=200") \
-                        .getOrCreate()
+                    try:
+                        # EMR-optimized configuration with YARN
+                        spark = SparkSession.builder \
+                            .appName(app_name) \
+                            .master(master_url) \
+                            .config("spark.executor.memory", "8g") \
+                            .config("spark.driver.memory", "8g") \
+                            .config("spark.executor.cores", "4") \
+                            .config("spark.sql.shuffle.partitions", "20") \
+                            .config("spark.python.worker.python", python_path) \
+                            .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer") \
+                            .config("spark.sql.files.maxPartitionBytes", "128m") \
+                            .config("spark.sql.broadcastTimeout", "300") \
+                            .config("spark.sql.autoBroadcastJoinThreshold", "10485760") \
+                            .config("spark.executor.extraJavaOptions", "-XX:+UseG1GC -XX:MaxGCPauseMillis=200") \
+                            .config("spark.driver.extraJavaOptions", "-XX:+UseG1GC -XX:MaxGCPauseMillis=200") \
+                            .getOrCreate()
+                    except Exception as yarn_error:
+                        print(f"YARN mode failed: {yarn_error}")
+                        print("Falling back to local mode...")
+                        # Fallback to local mode
+                        spark = SparkSession.builder \
+                            .appName(app_name) \
+                            .master("local[4]") \
+                            .config("spark.driver.memory", "8g") \
+                            .config("spark.sql.shuffle.partitions", "10") \
+                            .config("spark.python.worker.python", python_path) \
+                            .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer") \
+                            .config("spark.sql.files.maxPartitionBytes", "128m") \
+                            .config("spark.sql.broadcastTimeout", "300") \
+                            .config("spark.sql.autoBroadcastJoinThreshold", "10485760") \
+                            .config("spark.executor.extraJavaOptions", "-XX:+UseG1GC -XX:MaxGCPauseMillis=200") \
+                            .config("spark.driver.extraJavaOptions", "-XX:+UseG1GC -XX:MaxGCPauseMillis=200") \
+                            .getOrCreate()
                 else:
                     # Docker/standalone configuration
                     spark = SparkSession.builder \
