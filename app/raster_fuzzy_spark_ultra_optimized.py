@@ -159,19 +159,13 @@ def process_block_ultra_optimized(chunk_data):
 
 def process_rasters_spark_ultra_optimized(
     spark, social_tiff, environmental_tiff, strategic_tiff, output_tiff,
-    config_file, nodata_value=5.0, block_size=1000, num_partitions=None):
+    config_file, nodata_value=5.0, block_size=500, num_partitions=None):
     """
-    Ultra-optimized Spark-based raster processing with real performance improvements.
+    Process rasters using Spark with ultra-optimized settings.
+    Reduced block_size to avoid serialization issues.
     """
-    import pyspark
-    import pyspark.sql
-    import numpy as np
-    import rasterio
-    import json
-    import time
-    
-    print("Starting Ultra-Optimized Spark-based raster processing...")
-    start_time = time.time()
+    print(f"Starting Ultra-Optimized Spark-based raster processing...")
+    print(f"Block size: {block_size} rows (reduced for serialization)")
     
     # Load configuration with S3 support
     def load_config_safe(config_path):
@@ -238,7 +232,7 @@ def process_rasters_spark_ultra_optimized(
     
     print(f"Raster size: {rows} x {cols}")
     
-    # Prepare optimized block jobs
+    # Prepare optimized block jobs with smaller data
     block_jobs = []
     
     with open_rasterio_safe(social_tiff) as social_src, \
@@ -248,11 +242,12 @@ def process_rasters_spark_ultra_optimized(
         for block_start in range(0, rows, block_size):
             block_end = min(block_start + block_size, rows)
             
-            # Read blocks efficiently
-            social_block = social_src.read(1, window=((block_start, block_end), (0, cols)))
-            env_block = env_src.read(1, window=((block_start, block_end), (0, cols)))
-            strat_block = strat_src.read(1, window=((block_start, block_end), (0, cols)))
+            # Read blocks efficiently and convert to smaller data type
+            social_block = social_src.read(1, window=((block_start, block_end), (0, cols))).astype(np.float32)
+            env_block = env_src.read(1, window=((block_start, block_end), (0, cols))).astype(np.float32)
+            strat_block = strat_src.read(1, window=((block_start, block_end), (0, cols))).astype(np.float32)
             
+            # Only pass essential data to reduce serialization size
             block_jobs.append((config, social_block, env_block, strat_block, 
                              block_start, nodata_value))
     
