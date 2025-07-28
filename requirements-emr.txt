@@ -1,0 +1,25 @@
+# EMR Python Requirements
+# Core scientific packages
+numpy>=1.21.0
+scipy>=1.7.0
+pandas>=1.3.0
+
+# Geospatial packages
+rasterio>=1.2.0
+fiona>=1.8.0
+shapely>=1.8.0
+pyproj>=3.2.0
+
+# Fuzzy logic package
+scikit-fuzzy>=0.4.2
+
+# AWS packages
+boto3>=1.26.0
+s3fs>=2022.11.0
+
+# Additional useful packages
+matplotlib>=3.5.0
+seaborn>=0.11.0
+
+# PySpark (usually pre-installed on EMR)
+# pyspark>=3.5.0 

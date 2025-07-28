@@ -1,0 +1,14 @@
+[
+  {
+    "Name": "Install Python Packages",
+    "ActionOnFailure": "CONTINUE",
+    "HadoopJarStep": {
+      "Jar": "command-runner.jar",
+      "Args": [
+        "bash",
+        "-c",
+        "yum update -y && yum install -y python3-pip python3-devel gcc gcc-c++ make && python3 -m pip install --upgrade pip && python3 -m pip install numpy scipy pandas rasterio fiona shapely pyproj scikit-fuzzy boto3 s3fs matplotlib seaborn && python3 -c 'import numpy, rasterio, skfuzzy, boto3, s3fs; print(\"✓ All packages installed successfully\")'"
+      ]
+    }
+  }
+] 
