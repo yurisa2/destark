@@ -28,11 +28,11 @@ fi
 MASTER_DNS=$(aws emr describe-cluster --cluster-id "$CLUSTER_ID" --query 'Cluster.MasterPublicDnsName' --output text)
 echo "Master node: $MASTER_DNS"
 
-# Get all instance groups
-INSTANCE_GROUPS=$(aws emr list-instance-groups --cluster-id "$CLUSTER_ID" --query 'InstanceGroups[*].[InstanceGroupId,InstanceGroupType]' --output text)
+# Get all instances
+INSTANCES=$(aws emr list-instances --cluster-id "$CLUSTER_ID" --query 'Instances[*].[InstanceId,InstanceType,InstanceGroupType,PublicDnsName]' --output text)
 
-echo "Found instance groups:"
-echo "$INSTANCE_GROUPS"
+echo "Found instances:"
+echo "$INSTANCES"
 
 # Function to install packages on a node
 install_packages_on_node() {
@@ -77,7 +77,7 @@ echo "Installing packages on core nodes..."
 CORE_NODES=$(aws emr list-instances --cluster-id "$CLUSTER_ID" --instance-group-types CORE --query 'Instances[*].PublicDnsName' --output text)
 
 for core_node in $CORE_NODES; do
-    if [ -n "$core_node" ] && [ "$core_node" != "None" ]; then
+    if [ -n "$core_node" ] && [ "$core_node" != "None" ] && [ "$core_node" != "$MASTER_DNS" ]; then
         install_packages_on_node "$core_node" "core"
     fi
 done
