@@ -3,7 +3,7 @@
 # Run All FIS Models using Spark Submit on EMR Cluster
 # This script runs all available FIS configurations using spark-submit
 # to utilize the full power of the EMR cluster
-# FIXED VERSION: Handles Java version compatibility issues and EMR configuration
+# FIXED VERSION: Handles Java version compatibility issues, EMR configuration, and config file access
 
 set -e  # Exit on any error
 
@@ -153,15 +153,22 @@ declare -A FIS_CONFIGS=(
 TEMP_DIR=$(mktemp -d)
 echo "Using temporary directory: $TEMP_DIR"
 
-# Function to download config from S3 if needed
-download_config() {
+# Function to download config from S3 and upload to a new S3 location for Spark access
+download_and_upload_config() {
     local config_path="$1"
-    local temp_path="$2"
+    local model_name="$2"
     
     if [[ "$config_path" == s3://* ]]; then
         echo "Downloading config from S3: $config_path"
+        local temp_path="$TEMP_DIR/config_${model_name}.json"
         aws s3 cp "$config_path" "$temp_path"
-        echo "$temp_path"
+        
+        # Upload to a new S3 location that will be accessible to Spark
+        local spark_config_path="s3://adveng-pipeline/unifile_test/spark_config_${model_name}.json"
+        echo "Uploading config to Spark-accessible location: $spark_config_path"
+        aws s3 cp "$temp_path" "$spark_config_path"
+        
+        echo "$spark_config_path"
     else
         echo "$config_path"
     fi
@@ -177,8 +184,8 @@ run_spark_submit() {
     echo "Config: $config_path"
     echo "Output: $output_file"
     
-    # Download config if it's on S3
-    local_config=$(download_config "$config_path" "$TEMP_DIR/config_${model_name}.json")
+    # Download config and upload to Spark-accessible S3 location
+    spark_config_path=$(download_and_upload_config "$config_path" "$model_name")
     
     # Test Spark before running
     echo "Testing Spark configuration..."
@@ -229,7 +236,7 @@ run_spark_submit() {
         "$ENVIRONMENTAL_TIFF" \
         "$STRATEGIC_TIFF" \
         "$output_file" \
-        --config "$local_config" \
+        --config "$spark_config_path" \
         --verbose
     
     end_time=$(date +%s)
