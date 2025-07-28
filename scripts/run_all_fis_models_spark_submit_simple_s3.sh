@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# Final fix that addresses missing dependencies and AWS CLI issues
-# This resolves the ModuleNotFoundError and AWS CLI problems
+# Simple version that uses original S3 URLs but configures rasterio properly
 
 set -e
 
@@ -38,26 +37,20 @@ ENVIRONMENTAL_TIFF="$2"
 STRATEGIC_TIFF="$3"
 OUTPUT_PREFIX="$4"
 
-# Fix S3 endpoints for input files
-SOCIAL_TIFF_FIXED=$(echo "$SOCIAL_TIFF" | sed 's|s3://adveng-pipeline/|s3://adveng-pipeline.s3.amazonaws.com/|')
-ENVIRONMENTAL_TIFF_FIXED=$(echo "$ENVIRONMENTAL_TIFF" | sed 's|s3://adveng-pipeline/|s3://adveng-pipeline.s3.amazonaws.com/|')
-STRATEGIC_TIFF_FIXED=$(echo "$STRATEGIC_TIFF" | sed 's|s3://adveng-pipeline/|s3://adveng-pipeline.s3.amazonaws.com/|')
-OUTPUT_PREFIX_FIXED=$(echo "$OUTPUT_PREFIX" | sed 's|s3://adveng-pipeline/|s3://adveng-pipeline.s3.amazonaws.com/|')
+echo "=== Running All FIS Models with Spark Submit (Simple S3) ==="
+echo "Social: $SOCIAL_TIFF"
+echo "Environmental: $ENVIRONMENTAL_TIFF"
+echo "Strategic: $STRATEGIC_TIFF"
+echo "Output prefix: $OUTPUT_PREFIX"
 
-echo "=== Running All FIS Models with Spark Submit (Final Fix) ==="
-echo "Social: $SOCIAL_TIFF_FIXED"
-echo "Environmental: $ENVIRONMENTAL_TIFF_FIXED"
-echo "Strategic: $STRATEGIC_TIFF_FIXED"
-echo "Output prefix: $OUTPUT_PREFIX_FIXED"
-
-# Define configs with correct S3 endpoints (using s3.amazonaws.com)
+# Define configs with original S3 URLs
 declare -A FIS_CONFIGS=(
-    ["max"]="s3://adveng-pipeline.s3.amazonaws.com/unifile_test/config_max.json"
-    ["median"]="s3://adveng-pipeline.s3.amazonaws.com/unifile_test/config_median.json"
-    ["minimum"]="s3://adveng-pipeline.s3.amazonaws.com/unifile_test/config_minimum.json"
-    ["mode"]="s3://adveng-pipeline.s3.amazonaws.com/unifile_test/config_mode.json"
-    ["round_up"]="s3://adveng-pipeline.s3.amazonaws.com/unifile_test/config_round_up.json"
-    ["round_down"]="s3://adveng-pipeline.s3.amazonaws.com/unifile_test/config_round_down.json"
+    ["max"]="s3://adveng-pipeline/unifile_test/config_max.json"
+    ["median"]="s3://adveng-pipeline/unifile_test/config_median.json"
+    ["minimum"]="s3://adveng-pipeline/unifile_test/config_minimum.json"
+    ["mode"]="s3://adveng-pipeline/unifile_test/config_mode.json"
+    ["round_up"]="s3://adveng-pipeline/unifile_test/config_round_up.json"
+    ["round_down"]="s3://adveng-pipeline/unifile_test/config_round_down.json"
 )
 
 # Function to run a single model
@@ -72,7 +65,7 @@ run_model() {
     
     start_time=$(date +%s)
     
-    # Set Java 17 for YARN containers via environment variables
+    # Set Java 17 and S3 configuration for YARN containers
     spark-submit \
         --master yarn \
         --deploy-mode cluster \
@@ -93,13 +86,14 @@ run_model() {
         --conf spark.executorEnv.LD_LIBRARY_PATH="$JAVA_HOME/lib:$LD_LIBRARY_PATH" \
         --conf spark.yarn.appMasterEnv.JAVA_OPTS="-Djava.library.path=$JAVA_HOME/lib" \
         --conf spark.executorEnv.JAVA_OPTS="-Djava.library.path=$JAVA_HOME/lib" \
-        --py-files /usr/local/lib/python3.9/site-packages/dateutil \
         --conf spark.yarn.appMasterEnv.PYTHONPATH="/usr/local/lib/python3.9/site-packages:$PYTHONPATH" \
         --conf spark.executorEnv.PYTHONPATH="/usr/local/lib/python3.9/site-packages:$PYTHONPATH" \
+        --conf spark.yarn.appMasterEnv.AWS_S3_ENDPOINT="s3.amazonaws.com" \
+        --conf spark.executorEnv.AWS_S3_ENDPOINT="s3.amazonaws.com" \
         app/raster_fuzzy_spark_ultra_optimized.py \
-        "$SOCIAL_TIFF_FIXED" \
-        "$ENVIRONMENTAL_TIFF_FIXED" \
-        "$STRATEGIC_TIFF_FIXED" \
+        "$SOCIAL_TIFF" \
+        "$ENVIRONMENTAL_TIFF" \
+        "$STRATEGIC_TIFF" \
         "$output_file" \
         --config "$config_path" \
         --verbose
@@ -114,7 +108,7 @@ run_model() {
 # Process each model
 for model_name in "${!FIS_CONFIGS[@]}"; do
     config_path="${FIS_CONFIGS[$model_name]}"
-    output_file="${OUTPUT_PREFIX_FIXED}_${model_name}.tif"
+    output_file="${OUTPUT_PREFIX}_${model_name}.tif"
     
     if ! run_model "$model_name" "$config_path" "$output_file"; then
         echo "✗ Failed to process $model_name"
