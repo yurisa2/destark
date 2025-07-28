@@ -62,7 +62,7 @@ run_model() {
     nohup spark-submit \
         --master yarn \
         --deploy-mode cluster \
-        --jars "$SPARK_HOME/jars/spark-core_2.12-3.4.1-amzn-0.jar,$SPARK_HOME/jars/spark-sql_2.12-3.4.1-amzn-0.jar,$SPARK_HOME/jars/spark-yarn_2.12-3.4.1-amzn-0.jar" \
+        --conf spark.yarn.jars="file:///usr/lib/spark/jars/*.jar" \
         --conf spark.yarn.appMasterEnv.PYTHONPATH="$CODE_DIR" \
         --conf spark.executorEnv.PYTHONPATH="$CODE_DIR" \
         --conf spark.pyspark.python=/usr/bin/python3.9 \
