@@ -1,0 +1,21 @@
+{
+  "JobName": "RasterFuzzyProcessing",
+  "Role": "AWSGlueServiceRole",
+  "Command": {
+    "Name": "glueetl",
+    "ScriptLocation": "s3://your-bucket/scripts/raster_fuzzy_glue.py",
+    "PythonVersion": "3"
+  },
+  "DefaultArguments": {
+    "--job-language": "python",
+    "--job-bookmark-option": "job-bookmark-disable"
+  },
+  "ExecutionProperty": {
+    "MaxConcurrentRuns": 1
+  },
+  "MaxRetries": 0,
+  "Timeout": 3600,
+  "WorkerType": "G.2X",
+  "NumberOfWorkers": 4,
+  "GlueVersion": "4.0"
+}

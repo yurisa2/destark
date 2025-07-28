@@ -133,9 +133,9 @@ spark.stop()
 ### Memory Configuration
 
 The Docker setup includes:
-- **Worker Memory**: 2GB per worker
-- **Driver Memory**: 2GB
-- **Executor Cores**: 2 per worker
+- **Worker Memory**: 4GB per worker
+- **Driver Memory**: 4GB
+- **Executor Cores**: 4 per worker
 
 For production, adjust these in `docker-compose.yml`:
 

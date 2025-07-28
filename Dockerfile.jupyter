@@ -1,0 +1,51 @@
+FROM jupyter/pyspark-notebook:latest
+
+# Install system dependencies for rasterio
+USER root
+RUN apt-get update && apt-get install -y \
+    gdal-bin \
+    libgdal-dev \
+    gcc \
+    g++ \
+    openjdk-17-jdk \
+    && rm -rf /var/lib/apt/lists/*
+
+# Switch back to jovyan user
+USER jovyan
+
+# Install Python packages using conda (more reliable for rasterio)
+RUN conda install -c conda-forge \
+    rasterio>=1.2.0 \
+    scikit-fuzzy>=0.4.2 \
+    tqdm>=4.62.0 \
+    matplotlib>=3.5.0 \
+    seaborn>=0.11.0 \
+    findspark>=2.0.0 \
+    -y
+
+# Install specific Spark version to match cluster
+RUN pip install \
+    pyspark==3.5.0 \
+    py4j==0.10.9.7
+
+# Set environment variables for GDAL
+ENV GDAL_CONFIG=/opt/conda/bin/gdal-config
+ENV GDAL_DATA=/opt/conda/share/gdal
+
+# Set Spark and Java environment variables to match cluster
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64
+ENV SPARK_HOME=/opt/conda/lib/python3.11/site-packages/pyspark
+ENV PYSPARK_PYTHON=/opt/conda/bin/python
+ENV PYSPARK_DRIVER_PYTHON=/opt/conda/bin/python
+ENV SPARK_CONF_DIR=/opt/conda/lib/python3.11/site-packages/pyspark/conf
+
+# Create app directory structure
+RUN mkdir -p /home/jovyan/app/config \
+    && mkdir -p /home/jovyan/app/files/input/base \
+    && mkdir -p /home/jovyan/app/files/output
+
+# Set working directory
+WORKDIR /home/jovyan
+
+# Keep the default command
+CMD ["start.sh", "jupyter", "lab", "--LabApp.token=''", "--LabApp.password=''", "--ip=0.0.0.0", "--port=8888", "--allow-root", "--no-browser"] 

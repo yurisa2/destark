@@ -1,0 +1,7 @@
+{
+  "SOCIAL_TIFF": "s3://your-bucket/input/socioeconomico_1000m.tif",
+  "ENVIRONMENTAL_TIFF": "s3://your-bucket/input/ambiental_1000m.tif",
+  "STRATEGIC_TIFF": "s3://your-bucket/input/estrat\u00e9gico_1000m.tif",
+  "OUTPUT_TIFF": "s3://your-bucket/output/result.tif",
+  "CONFIG_FILE": "s3://your-bucket/config/config_round_down.json"
+}

@@ -19,9 +19,9 @@ if ! docker compose ps | grep -q "Up"; then
 fi
 
 # Check if input files exist
-SOCIAL_TIFF="$INPUT_DIR/socioeconomico_300m.tif"
-ENVIRONMENTAL_TIFF="$INPUT_DIR/ambiental_300m.tif"
-STRATEGIC_TIFF="$INPUT_DIR/estrategico_300m.tif"
+SOCIAL_TIFF="$INPUT_DIR/socioeconomico_1000m.tif"
+ENVIRONMENTAL_TIFF="$INPUT_DIR/ambiental_1000m.tif"
+STRATEGIC_TIFF="$INPUT_DIR/estrategico_1000m.tif"
 
 for file in "$SOCIAL_TIFF" "$ENVIRONMENTAL_TIFF" "$STRATEGIC_TIFF"; do
     if [[ ! -f "$file" ]]; then

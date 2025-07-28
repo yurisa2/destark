@@ -345,7 +345,8 @@ class SparkRasterFuzzyInferenceSystem:
             print(f"Error during Spark processing: {e}")
             import traceback
             traceback.print_exc()
-            raise
+            print("Spark processing failed. Please check your Spark configuration or use the dedicated local processing script.")
+            sys.exit(1)
     
     def _chunk_partition(self, partition, chunk_size):
         """
@@ -370,40 +371,104 @@ class SparkRasterFuzzyInferenceSystem:
             yield chunk
 
 
-def create_spark_session(app_name: str = "RasterFuzzyInference", 
-                        master_url: str = "spark://spark-master:7077",
-                        local_mode: bool = False) -> 'SparkSession':
-    """
-    Create a Spark session for raster processing.
-    
-    Args:
-        app_name: Name of the Spark application
-        master_url: URL of the Spark master
-        local_mode: Whether to run in local mode (for testing)
-        
-    Returns:
-        SparkSession object
-    """
+def create_spark_session(app_name: str = "RasterFuzzyInference", master_url: str = "spark://spark-master:7077", local_mode: bool = False):
     from pyspark.sql import SparkSession
+    import os
+    import sys
     
+    # Set critical environment variables for Java/Python compatibility
+    # Use system Python for local development, Docker Python for containerized environments
+    python_path = '/opt/conda/bin/python' if os.path.exists('/opt/conda/bin/python') else sys.executable
+    os.environ['PYSPARK_PYTHON'] = python_path
+    os.environ['PYSPARK_DRIVER_PYTHON'] = python_path
+    
+    # Set Java environment variables if not already set
+    if 'JAVA_HOME' not in os.environ:
+        # Try to find Java in common locations
+        java_paths = [
+            '/usr/lib/jvm/java-17-openjdk-arm64',  # Docker container Java 17
+            '/usr/lib/jvm/java-11-openjdk-amd64',
+            '/usr/lib/jvm/java-8-openjdk-amd64',
+            '/opt/bitnami/java',
+            '/usr/local/openjdk-11',
+            '/usr/local/openjdk-8'
+        ]
+        for java_path in java_paths:
+            if os.path.exists(java_path):
+                os.environ['JAVA_HOME'] = java_path
+                break
+    
+    # For Docker containers, override JAVA_HOME if it's incorrect
+    if os.environ.get('JAVA_HOME') == '/usr/lib/jvm/java-11-openjdk-amd64':
+        # Check if we're in a Docker container with Java 17
+        java_17_path = '/usr/lib/jvm/java-17-openjdk-arm64'
+        if os.path.exists(java_17_path):
+            os.environ['JAVA_HOME'] = java_17_path
+    
+    # For local mode, explicitly unset SPARK_HOME to prevent spark-submit usage
     if local_mode:
-        # Local mode for testing with very low memory
+        if 'SPARK_HOME' in os.environ:
+            del os.environ['SPARK_HOME']
+    else:
+        # Set Spark environment variables only if the path actually exists
+        if 'SPARK_HOME' not in os.environ:
+            spark_paths = [
+                '/opt/bitnami/spark',
+                '/usr/local/spark',
+                '/opt/spark',
+                '/opt/conda'  # Add this for Docker container
+            ]
+            for spark_path in spark_paths:
+                if os.path.exists(spark_path):
+                    os.environ['SPARK_HOME'] = spark_path
+                    break
+            # If no valid SPARK_HOME found, don't set it to avoid spark-submit issues
+        
+        # For Docker containers, ensure SPARK_HOME points to the PySpark installation
+        if os.environ.get('SPARK_HOME') == '/opt/conda':
+            # Check if we're in a Docker container with PySpark installed
+            pyspark_path = '/opt/conda/lib/python3.11/site-packages/pyspark'
+            if os.path.exists(pyspark_path):
+                os.environ['SPARK_HOME'] = pyspark_path
+    
+    # Configure Spark session with minimal settings to avoid compatibility issues
+    if local_mode:
+        # Local mode for testing with minimal configuration
         spark = SparkSession.builder \
             .appName(app_name) \
             .master("local[2]") \
             .config("spark.driver.memory", "512m") \
             .config("spark.executor.memory", "512m") \
             .config("spark.sql.shuffle.partitions", "5") \
+            .config("spark.python.worker.python", python_path) \
+            .config("spark.driver.extraJavaOptions", "-Dlog4j.configuration=file:///dev/null") \
+            .config("spark.executor.extraJavaOptions", "-Dlog4j.configuration=file:///dev/null") \
+            .config("spark.sql.adaptive.enabled", "false") \
+            .config("spark.sql.adaptive.coalescePartitions.enabled", "false") \
+            .config("spark.submit.deployMode", "client") \
+            .config("spark.driver.allowMultipleContexts", "true") \
+            .config("spark.driver.host", "localhost") \
+            .config("spark.driver.bindAddress", "localhost") \
+            .config("spark.sql.adaptive.enabled", "false") \
+            .config("spark.sql.adaptive.coalescePartitions.enabled", "false") \
+            .config("spark.sql.adaptive.skewJoin.enabled", "false") \
+            .config("spark.sql.adaptive.localShuffleReader.enabled", "false") \
             .getOrCreate()
     else:
         # Cluster mode with memory management
         spark = SparkSession.builder \
             .appName(app_name) \
             .master(master_url) \
-            .config("spark.executor.memory", "1g") \
-            .config("spark.driver.memory", "1g") \
-            .config("spark.executor.cores", "1") \
+            .config("spark.executor.memory", "4g") \
+            .config("spark.driver.memory", "4g") \
+            .config("spark.executor.cores", "2") \
             .config("spark.sql.shuffle.partitions", "10") \
+            .config("spark.python.worker.python", python_path) \
+            .config("spark.driver.extraJavaOptions", "-Dlog4j.configuration=file:///dev/null") \
+            .config("spark.executor.extraJavaOptions", "-Dlog4j.configuration=file:///dev/null") \
+            .config("spark.sql.adaptive.enabled", "false") \
+            .config("spark.sql.adaptive.coalescePartitions.enabled", "false") \
+            .config("spark.submit.deployMode", "client") \
             .getOrCreate()
     
     return spark
