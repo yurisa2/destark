@@ -20,6 +20,9 @@ echo "Installing Python packages..."
 # Core scientific packages
 python3 -m pip install numpy scipy pandas
 
+# Date utilities (often required by other packages)
+python3 -m pip install python-dateutil
+
 # Geospatial packages
 python3 -m pip install rasterio fiona shapely pyproj
 
@@ -37,7 +40,7 @@ echo "=== Python packages installation complete ==="
 # Verify installations
 echo "=== Verifying installations ==="
 python3 -c "
-import numpy, rasterio, skfuzzy, boto3, s3fs
+import numpy, rasterio, skfuzzy, boto3, s3fs, dateutil
 print('✓ All required packages installed successfully')
 "
 

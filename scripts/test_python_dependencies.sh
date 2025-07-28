@@ -42,7 +42,7 @@ echo ""
 echo "=== Testing Required Packages ==="
 
 # Test each required package
-PACKAGES=("numpy" "rasterio" "skfuzzy" "pyspark" "boto3" "s3fs")
+PACKAGES=("numpy" "rasterio" "skfuzzy" "pyspark" "boto3" "s3fs" "dateutil")
 
 for package in "${PACKAGES[@]}"; do
     echo -n "Testing $package... "
@@ -62,6 +62,18 @@ try:
     print('✓ S3 client created successfully')
 except Exception as e:
     print(f'✗ S3 client failed: {e}')
+"
+
+echo ""
+echo "=== Testing All Required Packages Together ==="
+python3 -c "
+try:
+    import numpy, rasterio, skfuzzy, boto3, s3fs, dateutil
+    print('✓ All required packages installed successfully')
+except ImportError as e:
+    print(f'✗ Missing package: {e}')
+    import traceback
+    traceback.print_exc()
 "
 
 echo ""

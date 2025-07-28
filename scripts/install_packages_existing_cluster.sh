@@ -55,12 +55,12 @@ install_packages_on_node() {
         
         # Install Python packages
         echo "Installing Python packages..."
-        python3 -m pip install --user numpy scipy pandas rasterio fiona shapely pyproj scikit-fuzzy boto3 s3fs matplotlib seaborn
+        python3 -m pip install --user numpy scipy pandas python-dateutil rasterio fiona shapely pyproj scikit-fuzzy boto3 s3fs matplotlib seaborn
         
         # Verify installations
         echo "Verifying installations..."
         python3 -c "
-import numpy, rasterio, skfuzzy, boto3, s3fs
+import numpy, rasterio, skfuzzy, boto3, s3fs, dateutil
 print('✓ All required packages installed successfully on ' + __import__('socket').gethostname())
 "
         
