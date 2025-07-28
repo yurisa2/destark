@@ -96,8 +96,8 @@ run_model() {
         --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \
         --conf spark.kryoserializer.buffer.max=256m \
         --conf spark.kryoserializer.buffer=64m \
-        --conf spark.executor.extraJavaOptions="-XX:+UseG1GC -XX:MaxGCPauseMillis=200 -Xmx3g" \
-        --conf spark.driver.extraJavaOptions="-XX:+UseG1GC -XX:MaxGCPauseMillis=200 -Xmx1g" \
+        --conf spark.executor.extraJavaOptions="-XX:+UseG1GC -XX:MaxGCPauseMillis=200" \
+        --conf spark.driver.extraJavaOptions="-XX:+UseG1GC -XX:MaxGCPauseMillis=200" \
         --conf spark.yarn.queue=default \
         --conf spark.yarn.submit.waitAppCompletion=false \
         app/raster_fuzzy_spark_ultra_optimized.py \
