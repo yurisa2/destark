@@ -218,9 +218,9 @@ def process_rasters_spark_ultra_optimized(
             if file_path.endswith('.in'):
                 print(f"Opening .in file as TIFF: {file_path}")
                 return rasterio.open(file_path, driver='GTiff')
-            else:
+        else:
                 # For other files, use normal opening
-                return rasterio.open(file_path)
+            return rasterio.open(file_path)
         except Exception as e:
             print(f"rasterio.open failed: {e}")
             raise e
@@ -302,7 +302,7 @@ def process_rasters_spark_ultra_optimized(
         finally:
             # Clean up
             if os.path.exists(temp_path):
-                os.unlink(temp_path)
+        os.unlink(temp_path)
     else:
         with rasterio.open(output_tiff, 'w', **profile) as dst:
             dst.write(output_data, 1)
