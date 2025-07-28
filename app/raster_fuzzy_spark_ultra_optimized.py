@@ -169,9 +169,33 @@ def process_rasters_spark_ultra_optimized(
     print("Starting Ultra-Optimized Spark-based raster processing...")
     start_time = time.time()
     
-    # Load configuration
-    with open(config_file, 'r') as f:
-        config = json.load(f)
+    # Load configuration with S3 support
+    def load_config_safe(config_path):
+        """Load configuration file with S3 support."""
+        if config_path.startswith('s3://'):
+            # For S3 files, download to temp file first
+            import tempfile
+            import subprocess
+            
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as tmp_file:
+                temp_path = tmp_file.name
+            
+            # Download from S3
+            subprocess.run(['aws', 's3', 'cp', config_path, temp_path], check=True)
+            
+            # Read the config
+            with open(temp_path, 'r') as f:
+                config = json.load(f)
+            
+            # Clean up
+            os.unlink(temp_path)
+            return config
+        else:
+            # Local file
+            with open(config_path, 'r') as f:
+                return json.load(f)
+    
+    config = load_config_safe(config_file)
     
     # Handle S3 files
     def open_rasterio_safe(file_path):
