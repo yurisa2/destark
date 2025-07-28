@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Run All FIS Models using Spark Submit on EMR Cluster
-# This script runs all available FIS configurations using spark-submit
-# to utilize the full power of the EMR cluster
+# Run All FIS Models using Local Mode with Full Resources
+# This script runs all available FIS configurations using local Spark mode
+# with maximum CPU cores and memory utilization
 
 set -e  # Exit on any error
 
@@ -61,12 +61,23 @@ ENVIRONMENTAL_TIFF="$2"
 STRATEGIC_TIFF="$3"
 OUTPUT_PREFIX="$4"
 
-echo "=== Running All FIS Models with Spark Submit ==="
+echo "=== Running All FIS Models with Local Mode (Full Resources) ==="
 echo "Code directory: $CODE_DIR"
 echo "Social: $SOCIAL_TIFF"
 echo "Environmental: $ENVIRONMENTAL_TIFF"
 echo "Strategic: $STRATEGIC_TIFF"
 echo "Output prefix: $OUTPUT_PREFIX"
+echo ""
+
+# Get system information
+CPU_CORES=$(nproc)
+TOTAL_MEMORY=$(free -g | awk '/^Mem:/{print $2}')
+AVAILABLE_MEMORY=$((TOTAL_MEMORY - 2))  # Leave 2GB for system
+
+echo "System Information:"
+echo "  CPU Cores: $CPU_CORES"
+echo "  Total Memory: ${TOTAL_MEMORY}GB"
+echo "  Available Memory: ${AVAILABLE_MEMORY}GB"
 echo ""
 
 # Define all FIS configurations
@@ -97,50 +108,31 @@ download_config() {
     fi
 }
 
-# Function to run spark-submit for a single model
-run_spark_submit() {
+# Function to run local processing for a single model
+run_local_model() {
     local model_name="$1"
     local config_path="$2"
     local output_file="$3"
     
-    echo "=== Processing $model_name model with Spark Submit ==="
+    echo "=== Processing $model_name model with Local Mode ==="
     echo "Config: $config_path"
     echo "Output: $output_file"
+    echo "Using $CPU_CORES cores and ${AVAILABLE_MEMORY}GB memory"
     
     # Download config if it's on S3
     local_config=$(download_config "$config_path" "$TEMP_DIR/config_${model_name}.json")
     
-    # Run the processing with spark-submit
-    echo "Starting Spark Submit processing..."
+    # Run the processing with local mode
+    echo "Starting local processing..."
     start_time=$(date +%s)
     
-    spark-submit \
-        --master yarn \
-        --deploy-mode cluster \
-        --conf spark.yarn.appMasterEnv.PYTHONPATH="$CODE_DIR" \
-        --conf spark.executorEnv.PYTHONPATH="$CODE_DIR" \
-        --conf spark.pyspark.python=/usr/bin/python3.9 \
-        --conf spark.pyspark.driver.python=/usr/bin/python3.9 \
-        --conf spark.executor.memory=8g \
-        --conf spark.driver.memory=8g \
-        --conf spark.executor.cores=4 \
-        --conf spark.sql.shuffle.partitions=20 \
-        --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \
-        --conf spark.sql.files.maxPartitionBytes=128m \
-        --conf spark.sql.broadcastTimeout=300 \
-        --conf spark.sql.autoBroadcastJoinThreshold=10485760 \
-        --conf spark.executor.extraJavaOptions="-XX:+UseG1GC -XX:MaxGCPauseMillis=200" \
-        --conf spark.driver.extraJavaOptions="-XX:+UseG1GC -XX:MaxGCPauseMillis=200" \
-        --conf spark.yarn.maxAppAttempts=1 \
-        --conf spark.yarn.submit.waitAppCompletion=true \
-        --conf spark.yarn.appMasterEnv.PYSPARK_PYTHON=/usr/bin/python3.9 \
-        --conf spark.executorEnv.PYSPARK_PYTHON=/usr/bin/python3.9 \
-        app/raster_fuzzy_spark_ultra_optimized.py \
+    python3 app/raster_fuzzy_spark_ultra_optimized.py \
         "$SOCIAL_TIFF" \
         "$ENVIRONMENTAL_TIFF" \
         "$STRATEGIC_TIFF" \
         "$output_file" \
         --config "$local_config" \
+        --local \
         --verbose
     
     end_time=$(date +%s)
@@ -157,7 +149,7 @@ for model_name in "${!FIS_CONFIGS[@]}"; do
     output_file="${OUTPUT_PREFIX}_${model_name}.tif"
     
     # Run the model
-    if ! run_spark_submit "$model_name" "$config_path" "$output_file"; then
+    if ! run_local_model "$model_name" "$config_path" "$output_file"; then
         echo "✗ Failed to process $model_name model"
         echo "Continuing with next model..."
         echo ""
