@@ -69,14 +69,14 @@ echo "Strategic: $STRATEGIC_TIFF"
 echo "Output prefix: $OUTPUT_PREFIX"
 echo ""
 
-# Define all FIS configurations
+# Define all FIS configurations (S3 paths)
 declare -A FIS_CONFIGS=(
-    ["max"]="app/config/config_max.json"
-    ["median"]="app/config/config_median.json"
-    ["minimum"]="app/config/config_minimum.json"
-    ["mode"]="app/config/config_mode.json"
-    ["round_up"]="app/config/config_round_up.json"
-    ["round_down"]="app/config/config_round_down.json"
+    ["max"]="s3://adveng-pipeline/unifile_test/config_max.json"
+    ["median"]="s3://adveng-pipeline/unifile_test/config_median.json"
+    ["minimum"]="s3://adveng-pipeline/unifile_test/config_minimum.json"
+    ["mode"]="s3://adveng-pipeline/unifile_test/config_mode.json"
+    ["round_up"]="s3://adveng-pipeline/unifile_test/config_round_up.json"
+    ["round_down"]="s3://adveng-pipeline/unifile_test/config_round_down.json"
 )
 
 # Create temporary directory for config files
