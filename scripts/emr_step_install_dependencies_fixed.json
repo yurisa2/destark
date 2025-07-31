@@ -1,0 +1,12 @@
+[
+  {
+    "Name": "Install System Dependencies and Git",
+    "ActionOnFailure": "CONTINUE",
+    "Type": "CUSTOM_JAR",
+    "Jar": "command-runner.jar",
+    "Args": [
+      "bash", "-c",
+      "sudo yum update -y && sudo yum install -y git python3-pip python3-devel gcc gcc-c++ make && sudo pip3 install --upgrade pip --force-reinstall"
+    ]
+  }
+] 

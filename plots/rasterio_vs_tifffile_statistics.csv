@@ -1,0 +1,13 @@
+Metric,Rasterio,Tifffile,Difference
+Resolution,1000m,1000m,Same
+Dimensions (pixels),4424 × 4593,4424 × 4593,Same
+Total Pixels,"20,319,432","20,319,432",Same
+Valid Pixels,"19,961,007","20,319,432",Same
+File Size (MB),19.4,77.5,+58.1
+Min Value,0.000,2.037,+2.037
+Max Value,251.000,9.200,-241.800
+Mean Value,66.668,4.022,-62.646
+Median Value,1.000,2.084,+1.084
+Standard Deviation,82.313,2.395,-79.918
+Value Range,251.000,7.163,-243.837
+Data Density (%),98.2%,100.0%,+1.8%

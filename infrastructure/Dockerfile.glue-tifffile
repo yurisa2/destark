@@ -1,0 +1,74 @@
+# AWS Glue Docker Image with Tifffile FIS Support
+# Based on AWS Glue 4.0 with Python 3.9
+
+FROM public.ecr.aws/glue/aws-glue-libs:glue_libs_4.0.0_image_01
+
+# Set environment variables
+ENV PYTHONPATH="/opt/glue/lib/installation:$PYTHONPATH"
+ENV GLUE_HOME="/opt/glue"
+ENV GLUE_PYTHON="/opt/glue/bin/python3"
+
+# Install system dependencies
+RUN yum update -y && \
+    yum install -y \
+        gcc \
+        gcc-c++ \
+        make \
+        cmake \
+        pkg-config \
+        libjpeg-devel \
+        libpng-devel \
+        libtiff-devel \
+        zlib-devel \
+        freetype-devel \
+        lcms2-devel \
+        libwebp-devel \
+        tcl-devel \
+        tk-devel \
+        libffi-devel \
+        openssl-devel \
+        bzip2-devel \
+        readline-devel \
+        sqlite-devel \
+        xz-devel \
+        wget \
+        git \
+        unzip \
+        && yum clean all
+
+# Create working directory
+WORKDIR /opt/glue/fis
+
+# Copy requirements file
+COPY requirements-glue-tifffile.txt .
+
+# Install Python dependencies
+RUN pip3 install --no-cache-dir --upgrade pip setuptools wheel && \
+    pip3 install --no-cache-dir -r requirements-glue-tifffile.txt
+
+# Copy FIS source code
+COPY app/raster_fuzzy_lib_tifffile.py .
+COPY app/config/ ./config/
+COPY glue_fis_tifffile_job.py .
+
+# Create necessary directories
+RUN mkdir -p /tmp/glue_fis
+
+# Set permissions
+RUN chmod +x glue_fis_tifffile_job.py
+
+# Create entrypoint script
+RUN echo '#!/bin/bash\n\
+echo "Starting Glue FIS Tifffile Job..."\n\
+echo "Python version: $(python3 --version)"\n\
+echo "Available packages:"\n\
+pip3 list | grep -E "(tifffile|scikit-fuzzy|numpy|scipy|boto3)"\n\
+echo "Starting job..."\n\
+python3 glue_fis_tifffile_job.py\n\
+' > /opt/glue/fis/entrypoint.sh && chmod +x /opt/glue/fis/entrypoint.sh
+
+# Set working directory
+WORKDIR /opt/glue/fis
+
+# Default command
+CMD ["/opt/glue/fis/entrypoint.sh"] 

@@ -1,0 +1,37 @@
+Input Type,Metric,1000m,300m,Difference
+Social,Resolution,1000m,300m,3.33x finer
+Social,Dimensions (pixels),4424 × 4593,14479 × 15187,"3.3x rows, 3.3x cols"
+Social,Total Pixels,"20,319,432","219,892,573",10.8x
+Social,Valid Pixels,"20,319,432","219,892,573",10.8x
+Social,File Size (MB),19.4,209.8,10.8x
+Social,Min Value,0.000,0.000,+0.000
+Social,Max Value,10.000,10.000,+0.000
+Social,Mean Value,2.905,1.928,-0.977
+Social,Median Value,0.000,0.000,+0.000
+Social,Standard Deviation,3.568,2.398,-1.170
+Social,Value Range,10.000,10.000,+0.000
+Social,Data Density (%),100.0%,100.0%,+0.0%
+Environmental,Resolution,1000m,300m,3.33x finer
+Environmental,Dimensions (pixels),4424 × 4593,14479 × 15187,"3.3x rows, 3.3x cols"
+Environmental,Total Pixels,"20,319,432","219,892,573",10.8x
+Environmental,Valid Pixels,"20,319,432","219,892,573",10.8x
+Environmental,File Size (MB),19.4,209.8,10.8x
+Environmental,Min Value,0.000,0.000,+0.000
+Environmental,Max Value,10.000,10.000,+0.000
+Environmental,Mean Value,1.487,1.421,-0.066
+Environmental,Median Value,0.000,0.000,+0.000
+Environmental,Standard Deviation,2.828,2.580,-0.248
+Environmental,Value Range,10.000,10.000,+0.000
+Environmental,Data Density (%),100.0%,100.0%,+0.0%
+Strategic,Resolution,1000m,300m,3.33x finer
+Strategic,Dimensions (pixels),4424 × 4593,14479 × 15187,"3.3x rows, 3.3x cols"
+Strategic,Total Pixels,"20,319,432","219,892,573",10.8x
+Strategic,Valid Pixels,"20,319,432","219,892,573",10.8x
+Strategic,File Size (MB),19.4,209.8,10.8x
+Strategic,Min Value,0.000,0.000,+0.000
+Strategic,Max Value,10.000,10.000,+0.000
+Strategic,Mean Value,0.500,4.162,+3.663
+Strategic,Median Value,0.000,0.000,+0.000
+Strategic,Standard Deviation,0.800,4.739,+3.940
+Strategic,Value Range,10.000,10.000,+0.000
+Strategic,Data Density (%),100.0%,100.0%,+0.0%

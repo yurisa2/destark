@@ -1,0 +1,38 @@
+[
+  {
+    "Name": "Install Development Tools and Libraries",
+    "ActionOnFailure": "CONTINUE",
+    "Jar": "command-runner.jar",
+    "Properties": "",
+    "Args": [
+      "bash",
+      "-c",
+      "echo '=== INSTALLING DEVELOPMENT TOOLS AND LIBRARIES ===' && sudo yum update -y && echo 'Installing basic system packages...' && sudo yum install -y git python3-pip python3-devel gcc gcc-c++ make java-17-amazon-corretto-devel unzip wget curl && echo 'Installing geospatial libraries (trying different package names)...' && sudo yum install -y gdal-devel proj-devel geos-devel hdf5-devel netcdf-devel libspatialindex-devel 2>/dev/null || sudo yum install -y gdal-devel proj-devel geos-devel hdf5-devel netcdf-devel 2>/dev/null || sudo yum install -y gdal-devel proj-devel geos-devel 2>/dev/null || echo 'Some geospatial packages not available via yum, will install via pip' && echo 'Setting up Java environment...' && echo 'export JAVA_HOME=/usr/lib/jvm/jre-17' >> /etc/profile && echo 'export PATH=$JAVA_HOME/bin:$PATH' >> /etc/profile && source /etc/profile && echo 'Upgrading pip...' && python3 -m pip install --upgrade pip && echo 'Installing Python packages for adveng processing...' && python3 -m pip install numpy>=1.21.0 scipy>=1.7.0 pandas>=1.3.0 python-dateutil>=2.8.0 rasterio>=1.3.0 fiona>=1.8.0 shapely>=1.8.0 pyproj>=3.2.0 scikit-fuzzy>=0.4.2 boto3>=1.26.0 s3fs>=2022.11.0 matplotlib>=3.5.0 seaborn>=0.11.0 tqdm>=4.62.0 pyspark>=3.4.0 networkx>=2.8.0 && echo 'Verifying installations...' && git --version && java -version && python3 -c \"import numpy, rasterio, skfuzzy, boto3, s3fs, dateutil, pyspark; print('✓ All development packages installed successfully')\" && echo '=== DEVELOPMENT ENVIRONMENT READY ==='"
+    ],
+    "Type": "CUSTOM_JAR"
+  },
+  {
+    "Name": "Setup Development Directory",
+    "ActionOnFailure": "CONTINUE",
+    "Jar": "command-runner.jar",
+    "Properties": "",
+    "Args": [
+      "bash",
+      "-c",
+      "echo '=== SETTING UP DEVELOPMENT DIRECTORY ===' && sudo mkdir -p /mnt/destark && sudo chown -R hadoop:hadoop /mnt/destark && cd /mnt/destark && echo 'Creating development structure...' && mkdir -p app scripts logs data config files/input files/output utils docs && echo 'Development directory structure created:' && ls -la && echo '=== DEVELOPMENT DIRECTORY READY ==='"
+    ],
+    "Type": "CUSTOM_JAR"
+  },
+  {
+    "Name": "Verify Development Environment",
+    "ActionOnFailure": "CONTINUE",
+    "Jar": "command-runner.jar",
+    "Properties": "",
+    "Args": [
+      "bash",
+      "-c",
+      "echo '=== VERIFYING DEVELOPMENT ENVIRONMENT ===' && echo 'Testing Python packages...' && python3 -c \"import rasterio; print(f'✓ Rasterio version: {rasterio.__version__}')\" && python3 -c \"import skfuzzy; print('✓ Scikit-fuzzy imported successfully')\" && python3 -c \"import numpy; print(f'✓ NumPy version: {numpy.__version__}')\" && python3 -c \"import boto3; print('✓ Boto3 imported successfully')\" && python3 -c \"import pyspark; print('✓ PySpark imported successfully')\" && echo 'Testing system tools...' && gdal-config --version 2>/dev/null || echo 'GDAL not available via system packages' && proj --version 2>/dev/null || echo 'PROJ not available via system packages' && echo 'Testing development directory...' && cd /mnt/destark && pwd && ls -la && echo '=== DEVELOPMENT ENVIRONMENT VERIFIED ===' && echo 'Cluster is ready for development!'"
+    ],
+    "Type": "CUSTOM_JAR"
+  }
+] 

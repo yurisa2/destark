@@ -12,10 +12,10 @@ This guide provides an optimized EMR cluster configuration specifically designed
 
 # After cluster is ready, run your raster processing
 ./scripts/run_all_fis_models_spark_submit_archive.sh \
-  s3://adveng-pipeline/unifile_test/so300m.in \
-  s3://adveng-pipeline/unifile_test/e300m.in \
-  s3://adveng-pipeline/unifile_test/s300m.in \
-  s3://adveng-pipeline/unifile_test/result_300m
+  s3://<AWS-BUCKET>/unifile_test/so300m.in \
+  s3://<AWS-BUCKET>/unifile_test/e300m.in \
+  s3://<AWS-BUCKET>/unifile_test/s300m.in \
+  s3://<AWS-BUCKET>/unifile_test/result_300m
 ```
 
 ## 📊 Configuration Comparison

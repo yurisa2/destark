@@ -183,12 +183,12 @@ def process_rasters_spark_ultra_optimized(
             # Parse S3 path
             if '.s3.amazonaws.com' in config_path:
                 # Handle s3.amazonaws.com format
-                bucket_key = config_path.replace('s3://adveng-pipeline.s3.amazonaws.com/', '')
-                bucket_name = 'adveng-pipeline'
+                bucket_key = config_path.replace('s3://<AWS-BUCKET>.s3.amazonaws.com/', '')
+                bucket_name = '<AWS-BUCKET>'
             else:
                 # Handle standard s3:// format
-                bucket_key = config_path.replace('s3://adveng-pipeline/', '')
-                bucket_name = 'adveng-pipeline'
+                bucket_key = config_path.replace('s3://<AWS-BUCKET>/', '')
+                bucket_name = '<AWS-BUCKET>'
             
             # Create temporary file
             with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as tmp_file:
@@ -301,12 +301,12 @@ def process_rasters_spark_ultra_optimized(
             # Parse S3 path
             if '.s3.amazonaws.com' in output_tiff:
                 # Handle s3.amazonaws.com format
-                bucket_key = output_tiff.replace('s3://adveng-pipeline.s3.amazonaws.com/', '')
-                bucket_name = 'adveng-pipeline'
+                bucket_key = output_tiff.replace('s3://<AWS-BUCKET>.s3.amazonaws.com/', '')
+                bucket_name = '<AWS-BUCKET>'
             else:
                 # Handle standard s3:// format
-                bucket_key = output_tiff.replace('s3://adveng-pipeline/', '')
-                bucket_name = 'adveng-pipeline'
+                bucket_key = output_tiff.replace('s3://<AWS-BUCKET>/', '')
+                bucket_name = '<AWS-BUCKET>'
             
             # Upload to S3 using boto3
             s3_client = boto3.client('s3')

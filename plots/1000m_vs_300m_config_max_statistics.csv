@@ -1,0 +1,14 @@
+Metric,1000m Config Max,300m Config Max,Difference
+Resolution,1000m,300m,3.33x finer
+Dimensions (pixels),4424 × 4593,14479 × 15187,"3.3x rows, 3.3x cols"
+Total Pixels,"20,319,432","219,892,573",10.8x
+Valid Pixels,"18,383,899","193,177,287",10.5x
+File Size (MB),0.6,8.0,13.3x
+Min Value,2.000,2.000,+0.000
+Max Value,9.000,9.000,+0.000
+Mean Value,3.805,4.195,+0.389
+Median Value,2.000,2.000,+0.000
+Standard Deviation,2.455,3.043,+0.589
+Value Range,7.000,7.000,+0.000
+Pixels per km²,0.9,0.9,1.0x
+Data Density (%),90.5%,87.9%,-2.6%

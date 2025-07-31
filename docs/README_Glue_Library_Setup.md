@@ -39,24 +39,24 @@ If Option 1 doesn't work, you can specify S3 paths to wheel files:
 1. **Upload Libraries to S3**
    ```bash
    # Create a directory for libraries
-   aws s3 mb s3://aws-glue-assets-475136118191-us-east-1/python-libs
+   aws s3 mb s3://aws-glue-assets-<AWS-ACCOUNT-ID>-us-east-1/python-libs
    
    # Download and upload wheel files
    pip download --platform manylinux2014_x86_64 --only-binary=all \
        numpy>=1.21.0 scipy>=1.7.0 rasterio>=1.3.0 scikit-fuzzy>=0.4.2 boto3>=1.26.0
    
    # Upload to S3
-   aws s3 cp *.whl s3://aws-glue-assets-475136118191-us-east-1/python-libs/
+   aws s3 cp *.whl s3://aws-glue-assets-<AWS-ACCOUNT-ID>-us-east-1/python-libs/
    ```
 
 2. **Add to Glue Job**
    - In "Additional Python libraries" section, add S3 paths:
    ```
-   s3://aws-glue-assets-475136118191-us-east-1/python-libs/numpy-*.whl
-   s3://aws-glue-assets-475136118191-us-east-1/python-libs/scipy-*.whl
-   s3://aws-glue-assets-475136118191-us-east-1/python-libs/rasterio-*.whl
-   s3://aws-glue-assets-475136118191-us-east-1/python-libs/scikit_fuzzy-*.whl
-   s3://aws-glue-assets-475136118191-us-east-1/python-libs/boto3-*.whl
+   s3://aws-glue-assets-<AWS-ACCOUNT-ID>-us-east-1/python-libs/numpy-*.whl
+s3://aws-glue-assets-<AWS-ACCOUNT-ID>-us-east-1/python-libs/scipy-*.whl
+s3://aws-glue-assets-<AWS-ACCOUNT-ID>-us-east-1/python-libs/rasterio-*.whl
+s3://aws-glue-assets-<AWS-ACCOUNT-ID>-us-east-1/python-libs/scikit_fuzzy-*.whl
+s3://aws-glue-assets-<AWS-ACCOUNT-ID>-us-east-1/python-libs/boto3-*.whl
    ```
 
 ### Option 3: Use Glue Version with More Libraries

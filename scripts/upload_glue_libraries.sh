@@ -4,7 +4,7 @@ Upload Python libraries to S3 for AWS Glue deployment.
 """
 
 # Set your S3 bucket name
-S3_BUCKET="aws-glue-assets-475136118191-us-east-1"
+S3_BUCKET="aws-glue-assets-<AWS-ACCOUNT-ID>-us-east-1"
 S3_PREFIX="python-libs"
 
 echo "=== Uploading Python Libraries to S3 ==="

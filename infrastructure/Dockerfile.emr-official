@@ -1,0 +1,7 @@
+FROM public.ecr.aws/emr-serverless/spark/emr-7.9.0:20250425
+
+USER root
+
+# Override the complex entrypoint with a simple bash
+ENTRYPOINT ["/bin/bash"]
+

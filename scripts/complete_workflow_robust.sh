@@ -42,26 +42,26 @@ echo "✓ Scripts made executable"
 # Step 6: Run all FIS models
 echo "Step 6: Running all FIS models..."
 echo "Input files:"
-echo "  Social: s3://adveng-pipeline/unifile_test/so300m.in"
-echo "  Environmental: s3://adveng-pipeline/unifile_test/e300m.in"
-echo "  Strategic: s3://adveng-pipeline/unifile_test/s300m.in"
-echo "Output prefix: s3://adveng-pipeline/unifile_test/result_300m"
+echo "  Social: s3://<AWS-BUCKET>/unifile_test/so300m.in"
+echo "  Environmental: s3://<AWS-BUCKET>/unifile_test/e300m.in"
+echo "  Strategic: s3://<AWS-BUCKET>/unifile_test/s300m.in"
+echo "Output prefix: s3://<AWS-BUCKET>/unifile_test/result_300m"
 echo ""
 
 # Run the local optimized script
 ./scripts/run_all_fis_models_local_optimized.sh \
-    s3://adveng-pipeline/unifile_test/so300m.in \
-    s3://adveng-pipeline/unifile_test/e300m.in \
-    s3://adveng-pipeline/unifile_test/s300m.in \
-    s3://adveng-pipeline/unifile_test/result_300m
+    s3://<AWS-BUCKET>/unifile_test/so300m.in \
+    s3://<AWS-BUCKET>/unifile_test/e300m.in \
+    s3://<AWS-BUCKET>/unifile_test/s300m.in \
+    s3://<AWS-BUCKET>/unifile_test/result_300m
 
 echo ""
 echo "=== Complete FIS Workflow Finished Successfully ==="
 echo "Timestamp: $(date)"
 echo "Output files created:"
-echo "  s3://adveng-pipeline/unifile_test/result_300m_max.tif"
-echo "  s3://adveng-pipeline/unifile_test/result_300m_median.tif"
-echo "  s3://adveng-pipeline/unifile_test/result_300m_minimum.tif"
-echo "  s3://adveng-pipeline/unifile_test/result_300m_mode.tif"
-echo "  s3://adveng-pipeline/unifile_test/result_300m_round_up.tif"
-echo "  s3://adveng-pipeline/unifile_test/result_300m_round_down.tif" 
+echo "  s3://<AWS-BUCKET>/unifile_test/result_300m_max.tif"
+echo "  s3://<AWS-BUCKET>/unifile_test/result_300m_median.tif"
+echo "  s3://<AWS-BUCKET>/unifile_test/result_300m_minimum.tif"
+echo "  s3://<AWS-BUCKET>/unifile_test/result_300m_mode.tif"
+echo "  s3://<AWS-BUCKET>/unifile_test/result_300m_round_up.tif"
+echo "  s3://<AWS-BUCKET>/unifile_test/result_300m_round_down.tif" 

@@ -1,0 +1,12 @@
+[
+  {
+    "Name": "Clone Repository and Setup Environment",
+    "ActionOnFailure": "CONTINUE",
+    "Type": "CUSTOM_JAR",
+    "Jar": "command-runner.jar",
+    "Args": [
+      "bash", "-c",
+      "sudo mkdir -p /mnt && cd /mnt && sudo git clone https://github.com/<GITHUB-USERNAME>/destark.git && sudo chown -R hadoop:hadoop /mnt/destark && cd /mnt/destark && ls -la"
+    ]
+  }
+] 

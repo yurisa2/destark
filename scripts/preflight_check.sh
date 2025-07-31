@@ -111,16 +111,16 @@ echo ""
 echo "=== 4. S3 Access Checks ==="
 check_component "AWS CLI available" "command -v aws" "false"
 S3_FILES=(
-    "s3://adveng-pipeline/unifile_test/so300m.in"
-    "s3://adveng-pipeline/unifile_test/e300m.in"
-    "s3://adveng-pipeline/unifile_test/s300m.in"
+    "s3://<AWS-BUCKET>/unifile_test/so300m.in"
+    "s3://<AWS-BUCKET>/unifile_test/e300m.in"
+    "s3://<AWS-BUCKET>/unifile_test/s300m.in"
 )
 for s3_file in "${S3_FILES[@]}"; do
     check_component "S3 access to $(basename \"$s3_file\")" "aws s3 ls '$s3_file' >/dev/null 2>&1" "true"
 done
 CONFIG_FILES=(
-    "s3://adveng-pipeline/unifile_test/config_max.json"
-    "s3://adveng-pipeline/unifile_test/config_round_up.json"
+    "s3://<AWS-BUCKET>/unifile_test/config_max.json"
+    "s3://<AWS-BUCKET>/unifile_test/config_round_up.json"
 )
 for config_file in "${CONFIG_FILES[@]}"; do
     check_component "S3 access to $(basename \"$config_file\")" "aws s3 ls '$config_file' >/dev/null 2>&1" "true"
@@ -183,7 +183,7 @@ else
     echo "🔧 COMMON FIXES:"
     echo "   - Java version issue: The scripts will automatically set JAVA_HOME to Java 17"
     echo "   - Install missing packages: pip3 install python-dateutil boto3"
-    echo "   - Check S3 permissions: aws s3 ls s3://adveng-pipeline/unifile_test/"
+    echo "   - Check S3 permissions: aws s3 ls s3://<AWS-BUCKET>/unifile_test/"
     echo ""
     echo "💡 The optimized script will automatically fix the Java version issue."
     exit 1

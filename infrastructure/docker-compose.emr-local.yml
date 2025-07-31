@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  emr-local:
+    build:
+      context: .
+      dockerfile: Dockerfile.emr-local
+    container_name: emr-local-spark
+    ports:
+      - "4040:4040"  # Spark Application UI
+      - "8080:8080"  # Spark Master UI
+      - "7077:7077"  # Spark Master
+    volumes:
+      - ./scripts:/opt/destark/scripts
+      - ./data:/opt/destark/data
+      - ./logs:/opt/destark/logs
+    environment:
+      - SPARK_HOME=/usr/lib/spark
+      - PYSPARK_PYTHON=/usr/bin/python3
+      - PYSPARK_DRIVER_PYTHON=/usr/bin/python3
+      - JAVA_HOME=/usr/lib/jvm/java-8-amazon-corretto
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-2}
+    working_dir: /opt/destark
+    tty: true
+    stdin_open: true 

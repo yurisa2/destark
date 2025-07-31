@@ -1,5 +1,41 @@
+# Python
 .venv
-*.tif*
-.DS_Store
 *pyc*
+__pycache__/
+
+# Data files
+*.tif*
 logs/
+
+# System files
+.DS_Store
+
+# Security - NEVER commit these files
+*.env
+.env
+.env.local
+.env.production
+credentials.json
+secrets.json
+*.pem
+*.key
+*.p12
+*.pfx
+
+# AWS credentials (patterns to catch)
+*access_key*
+*secret_key*
+*aws_credentials*
+*aws_secret*
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-*

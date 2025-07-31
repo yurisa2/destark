@@ -5,11 +5,11 @@
 
 set -e
 
-CLUSTER_ID="${1:-j-2GXM0KGIFLEHE}"
+CLUSTER_ID="${1:-<EMR-CLUSTER-ID>}"
 
 if [ -z "$CLUSTER_ID" ]; then
     echo "Usage: $0 <cluster-id>"
-    echo "Example: $0 j-2GXM0KGIFLEHE"
+    echo "Example: $0 <EMR-CLUSTER-ID>"
     exit 1
 fi
 

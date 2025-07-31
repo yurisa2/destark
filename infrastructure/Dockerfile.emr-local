@@ -1,0 +1,89 @@
+# EMR 7.9.0 Local Environment
+FROM amazonlinux:2
+
+# Set environment variables
+ENV SPARK_HOME=/usr/lib/spark
+ENV PYSPARK_PYTHON=/usr/bin/python3
+ENV PYSPARK_DRIVER_PYTHON=/usr/bin/python3
+ENV JAVA_HOME=/usr/lib/jvm/java-8-amazon-corretto
+ENV PATH=$PATH:$SPARK_HOME/bin:$JAVA_HOME/bin
+
+# Install system dependencies
+RUN yum update -y && \
+    yum install -y \
+    java-1.8.0-amazon-corretto \
+    java-1.8.0-amazon-corretto-devel \
+    python3 \
+    python3-pip \
+    python3-devel \
+    gcc \
+    gcc-c++ \
+    make \
+    wget \
+    unzip \
+    tar \
+    git \
+    openssh-server \
+    openssh-clients \
+    && yum clean all
+
+# Install Spark 3.4.1 (EMR 7.9.0 uses Spark 3.4.1)
+RUN wget https://archive.apache.org/dist/spark/spark-3.4.1/spark-3.4.1-bin-hadoop3.tgz && \
+    tar -xzf spark-3.4.1-bin-hadoop3.tgz && \
+    mv spark-3.4.1-bin-hadoop3 /usr/lib/spark && \
+    rm spark-3.4.1-bin-hadoop3.tgz
+
+# Install Python packages
+RUN pip3 install --upgrade pip && \
+    pip3 install \
+    numpy \
+    scipy \
+    rasterio \
+    scikit-fuzzy \
+    boto3 \
+    networkx \
+    pyspark==3.4.1
+
+# Create working directory
+WORKDIR /opt/destark
+
+# Copy the Spark FIS processing scripts
+COPY scripts/emr_fis_fixed.py /opt/destark/
+COPY scripts/emr_fis_distributed.py /opt/destark/
+
+# Create a startup script
+RUN echo '#!/bin/bash' > /opt/destark/start.sh && \
+    echo 'echo "=== EMR 7.9.0 Local Environment ==="' >> /opt/destark/start.sh && \
+    echo 'echo "Spark Home: $SPARK_HOME"' >> /opt/destark/start.sh && \
+    echo 'echo "Java Home: $JAVA_HOME"' >> /opt/destark/start.sh && \
+    echo 'echo "Python: $(which python3)"' >> /opt/destark/start.sh && \
+    echo 'echo "Spark Version: $(spark-submit --version 2>&1 | head -1)"' >> /opt/destark/start.sh && \
+    echo 'echo ""' >> /opt/destark/start.sh && \
+    echo 'echo "Available commands:"' >> /opt/destark/start.sh && \
+    echo 'echo "  python3 emr_fis_fixed.py        - Run Spark FIS processing"' >> /opt/destark/start.sh && \
+    echo 'echo "  spark-submit --version          - Check Spark version"' >> /opt/destark/start.sh && \
+    echo 'echo "  pyspark                         - Start PySpark shell"' >> /opt/destark/start.sh && \
+    echo 'echo "  start-spark-master              - Start Spark master"' >> /opt/destark/start.sh && \
+    echo 'echo "  start-spark-worker              - Start Spark worker"' >> /opt/destark/start.sh && \
+    echo 'echo ""' >> /opt/destark/start.sh && \
+    echo 'bash' >> /opt/destark/start.sh && \
+    chmod +x /opt/destark/start.sh
+
+# Create Spark startup scripts
+RUN echo '#!/bin/bash' > /opt/destark/start-spark-master.sh && \
+    echo 'echo "Starting Spark Master..."' >> /opt/destark/start-spark-master.sh && \
+    echo '$SPARK_HOME/sbin/start-master.sh' >> /opt/destark/start-spark-master.sh && \
+    echo 'echo "Spark Master started on http://localhost:8080"' >> /opt/destark/start-spark-master.sh && \
+    chmod +x /opt/destark/start-spark-master.sh
+
+RUN echo '#!/bin/bash' > /opt/destark/start-spark-worker.sh && \
+    echo 'echo "Starting Spark Worker..."' >> /opt/destark/start-spark-worker.sh && \
+    echo '$SPARK_HOME/sbin/start-slave.sh spark://localhost:7077' >> /opt/destark/start-spark-worker.sh && \
+    echo 'echo "Spark Worker started"' >> /opt/destark/start-spark-worker.sh && \
+    chmod +x /opt/destark/start-spark-worker.sh
+
+# Expose ports for Spark UI
+EXPOSE 4040 8080 7077
+
+# Default command
+CMD ["/opt/destark/start.sh"] 

@@ -1,0 +1,62 @@
+[
+  {
+    "Name": "Install System Dependencies",
+    "ActionOnFailure": "CONTINUE",
+    "Type": "CUSTOM_JAR",
+    "Jar": "command-runner.jar",
+    "Args": [
+      "bash", "-c",
+      "sudo yum update -y && sudo yum install -y git python3-pip python3-devel gcc gcc-c++ make unzip && sudo pip3 install --upgrade pip --force-reinstall --no-deps"
+    ]
+  },
+  {
+    "Name": "Create Repository Structure",
+    "ActionOnFailure": "CONTINUE",
+    "Type": "CUSTOM_JAR",
+    "Jar": "command-runner.jar",
+    "Args": [
+      "bash", "-c",
+      "sudo mkdir -p /mnt/destark && sudo chown -R hadoop:hadoop /mnt/destark && cd /mnt/destark && mkdir -p app scripts logs data && echo 'Repository structure created' && pwd && ls -la"
+    ]
+  },
+  {
+    "Name": "Create Requirements Files",
+    "ActionOnFailure": "CONTINUE",
+    "Type": "CUSTOM_JAR",
+    "Jar": "command-runner.jar",
+    "Args": [
+      "bash", "-c",
+      "cd /mnt/destark && echo 'numpy' > requirements-emr.txt && echo 'pandas' >> requirements-emr.txt && echo 'scikit-learn' >> requirements-emr.txt && echo 'matplotlib' >> requirements-emr.txt && echo 'seaborn' >> requirements-emr.txt && echo 'pyspark' > requirements-spark.txt && echo 'boto3' >> requirements-spark.txt && cat requirements-emr.txt && cat requirements-spark.txt"
+    ]
+  },
+  {
+    "Name": "Install Python Dependencies",
+    "ActionOnFailure": "CONTINUE",
+    "Type": "CUSTOM_JAR",
+    "Jar": "command-runner.jar",
+    "Args": [
+      "bash", "-c",
+      "cd /mnt/destark && pip3 install -r requirements-emr.txt && pip3 install -r requirements-spark.txt && echo 'Python dependencies installed successfully'"
+    ]
+  },
+  {
+    "Name": "Create Simple FIS Script",
+    "ActionOnFailure": "CONTINUE",
+    "Type": "CUSTOM_JAR",
+    "Jar": "command-runner.jar",
+    "Args": [
+      "bash", "-c",
+      "cd /mnt/destark && echo '#!/bin/bash' > scripts/run_all_fis_models.sh && echo 'echo \"Starting FIS models...\"' >> scripts/run_all_fis_models.sh && echo 'python3 -c \"import numpy as np; print(\\\"FIS Models Test - NumPy version:\\\", np.__version__)\"' >> scripts/run_all_fis_models.sh && echo 'echo \"FIS models completed successfully!\"' >> scripts/run_all_fis_models.sh && chmod +x scripts/run_all_fis_models.sh && cat scripts/run_all_fis_models.sh"
+    ]
+  },
+  {
+    "Name": "Run FIS Models Test",
+    "ActionOnFailure": "CONTINUE",
+    "Type": "CUSTOM_JAR",
+    "Jar": "command-runner.jar",
+    "Args": [
+      "bash", "-c",
+      "cd /mnt/destark && mkdir -p logs && ./scripts/run_all_fis_models.sh 2>&1 | tee logs/emr_run.log && echo 'FIS models execution completed'"
+    ]
+  }
+] 

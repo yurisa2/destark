@@ -1,0 +1,42 @@
+[
+  {
+    "Name": "Install System Dependencies and Git",
+    "ActionOnFailure": "CONTINUE",
+    "Type": "CUSTOM_JAR",
+    "Jar": "command-runner.jar",
+    "Args": [
+      "bash", "-c",
+      "sudo yum update -y && sudo yum install -y git python3-pip python3-devel gcc gcc-c++ make && sudo pip3 install --upgrade pip"
+    ]
+  },
+  {
+    "Name": "Clone Repository and Setup Environment",
+    "ActionOnFailure": "CONTINUE",
+    "Type": "CUSTOM_JAR",
+    "Jar": "command-runner.jar",
+    "Args": [
+      "bash", "-c",
+      "sudo mkdir -p /mnt && cd /mnt && sudo git clone https://github.com/yourusername/destark.git && sudo chown -R hadoop:hadoop /mnt/destark && cd /mnt/destark && ls -la"
+    ]
+  },
+  {
+    "Name": "Install Python Dependencies",
+    "ActionOnFailure": "CONTINUE",
+    "Type": "CUSTOM_JAR",
+    "Jar": "command-runner.jar",
+    "Args": [
+      "bash", "-c",
+      "cd /mnt/destark && pip3 install -r requirements-emr.txt && pip3 install -r requirements-spark.txt"
+    ]
+  },
+  {
+    "Name": "Run All FIS Models",
+    "ActionOnFailure": "CONTINUE",
+    "Type": "CUSTOM_JAR",
+    "Jar": "command-runner.jar",
+    "Args": [
+      "bash", "-c",
+      "cd /mnt/destark && mkdir -p logs && python3 scripts/run_all_fis_models.sh 2>&1 | tee /mnt/destark/logs/emr_run.log"
+    ]
+  }
+] 

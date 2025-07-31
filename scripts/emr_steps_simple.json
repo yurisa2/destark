@@ -1,0 +1,26 @@
+[
+  {
+    "Name": "Setup Basic Development Environment",
+    "ActionOnFailure": "CONTINUE",
+    "Jar": "command-runner.jar",
+    "Properties": "",
+    "Args": [
+      "bash",
+      "-c",
+      "echo '=== SETTING UP BASIC DEVELOPMENT ENVIRONMENT ===' && sudo yum update -y && sudo yum install -y git python3-pip python3-devel gcc gcc-c++ make java-17-amazon-corretto-devel unzip wget curl && echo 'export JAVA_HOME=/usr/lib/jvm/jre-17' >> /etc/profile && echo 'export PATH=$JAVA_HOME/bin:$PATH' >> /etc/profile && source /etc/profile && python3 -m pip install --upgrade pip && echo '=== BASIC ENVIRONMENT READY ==='"
+    ],
+    "Type": "CUSTOM_JAR"
+  },
+  {
+    "Name": "Setup Development Directory",
+    "ActionOnFailure": "CONTINUE",
+    "Jar": "command-runner.jar",
+    "Properties": "",
+    "Args": [
+      "bash",
+      "-c",
+      "echo '=== SETTING UP DEVELOPMENT DIRECTORY ===' && sudo mkdir -p /mnt/destark && sudo chown -R hadoop:hadoop /mnt/destark && cd /mnt/destark && mkdir -p app scripts logs data config files/input files/output utils docs && echo 'Development directory structure created:' && ls -la && echo '=== DEVELOPMENT DIRECTORY READY ==='"
+    ],
+    "Type": "CUSTOM_JAR"
+  }
+] 

@@ -6,11 +6,11 @@
 set -e
 
 # Configuration
-CLUSTER_ID="${1:-j-2XV0JESM33Y1E}"
-SOCIAL_TIFF="${2:-s3://adveng-pipeline/unifile_test/so300m.in}"
-ENVIRONMENTAL_TIFF="${3:-s3://adveng-pipeline/unifile_test/e300m.in}"
-STRATEGIC_TIFF="${4:-s3://adveng-pipeline/unifile_test/s300m.in}"
-OUTPUT_PREFIX="${5:-s3://adveng-pipeline/unifile_test/result_300m}"
+CLUSTER_ID="${1:-<EMR-CLUSTER-ID>}"
+SOCIAL_TIFF="${2:-s3://<AWS-BUCKET>/unifile_test/so300m.in}"
+ENVIRONMENTAL_TIFF="${3:-s3://<AWS-BUCKET>/unifile_test/e300m.in}"
+STRATEGIC_TIFF="${4:-s3://<AWS-BUCKET>/unifile_test/s300m.in}"
+OUTPUT_PREFIX="${5:-s3://<AWS-BUCKET>/unifile_test/result_300m}"
 
 # Validate cluster ID
 if [[ -z "$CLUSTER_ID" ]]; then
@@ -24,7 +24,7 @@ if [[ -z "$CLUSTER_ID" ]]; then
     echo "  $0 j-1234567890"
     echo ""
     echo "  # Use custom input/output files"
-    echo "  $0 j-2XV0JESM33Y1E s3://bucket/input/social.tif s3://bucket/input/env.tif s3://bucket/input/strat.tif s3://bucket/output/result"
+    echo "  $0 <EMR-CLUSTER-ID> s3://bucket/input/social.tif s3://bucket/input/env.tif s3://bucket/input/strat.tif s3://bucket/output/result"
     exit 1
 fi
 

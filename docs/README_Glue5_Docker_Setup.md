@@ -90,8 +90,8 @@ export AWS_REGION="us-west-2"
 
 After the script completes, you'll get S3 paths like:
 ```
-s3://aws-glue-assets-475136118191-us-east-1/python-libs-glue5/numpy-*.whl
-s3://aws-glue-assets-475136118191-us-east-1/python-libs-glue5/rasterio-*.whl
+s3://aws-glue-assets-<AWS-ACCOUNT-ID>-us-east-1/python-libs-glue5/numpy-*.whl
+s3://aws-glue-assets-<AWS-ACCOUNT-ID>-us-east-1/python-libs-glue5/rasterio-*.whl
 ```
 
 To use these in AWS Glue:

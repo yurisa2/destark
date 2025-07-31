@@ -7,7 +7,7 @@
       "Args": [
         "bash",
         "-c",
-        "cd /mnt/destark && git pull origin main && chmod +x scripts/run_all_fis_models_spark_submit.sh && ./scripts/run_all_fis_models_spark_submit.sh s3://adveng-pipeline/unifile_test/so300m.in s3://adveng-pipeline/unifile_test/e300m.in s3://adveng-pipeline/unifile_test/s300m.in s3://adveng-pipeline/unifile_test/result_300m"
+        "cd /mnt/destark && git pull origin main && chmod +x scripts/run_all_fis_models_spark_submit.sh && ./scripts/run_all_fis_models_spark_submit.sh s3://<AWS-BUCKET>/unifile_test/so300m.in s3://<AWS-BUCKET>/unifile_test/e300m.in s3://<AWS-BUCKET>/unifile_test/s300m.in s3://<AWS-BUCKET>/unifile_test/result_300m"
       ]
     }
   }

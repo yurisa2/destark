@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set your S3 bucket name (using the one from your error log)
-S3_BUCKET="aws-glue-assets-475136118191-us-east-1"
+S3_BUCKET="aws-glue-assets-<AWS-ACCOUNT-ID>-us-east-1"
 S3_PREFIX="python-libs"
 
 echo "=== Uploading Python Libraries to S3 for AWS Glue ==="

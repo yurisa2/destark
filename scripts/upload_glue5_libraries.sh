@@ -6,7 +6,7 @@
 set -e
 
 # Configuration
-S3_BUCKET=${S3_BUCKET:-"aws-glue-assets-475136118191-us-east-1"}
+S3_BUCKET=${S3_BUCKET:-"aws-glue-assets-<AWS-ACCOUNT-ID>-us-east-1"}
 S3_PREFIX=${S3_PREFIX:-"python-libs-glue5"}
 AWS_REGION=${AWS_REGION:-"us-east-1"}
 

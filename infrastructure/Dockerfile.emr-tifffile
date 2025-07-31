@@ -1,0 +1,31 @@
+# Use EMR 7.9.0 base image
+FROM public.ecr.aws/emr-on-eks/spark/emr-7.9.0:latest
+
+# Set environment variables
+ENV AWS_DEFAULT_REGION=us-east-1
+ENV PYTHONPATH=/opt/amazon/lib/python3.9/site-packages
+
+# Install Python dependencies for tifffile and fuzzy logic
+RUN python3 -m pip install --no-cache-dir \
+    scikit-fuzzy==0.4.2 \
+    tifffile>=2023.0.0 \
+    networkx>=2.6.0 \
+    boto3>=1.26.0 \
+    py4j>=0.10.9 \
+    psutil>=5.8.0 \
+    scipy>=1.7.0 \
+    packaging>=20.0 \
+    pandas>=1.3.0 \
+    tqdm>=4.62.0 \
+    matplotlib>=3.5.0
+
+# Spark is already included in EMR base image
+
+# Set working directory
+WORKDIR /opt/workspace
+
+# Create test script
+RUN printf '#!/bin/bash\necho "Testing EMR environment..."\npython3 -c "import tifffile; import numpy as np; data = np.random.rand(10, 10); tifffile.imwrite(\"test.tif\", data); print(\"✓ tifffile write test passed\")"\npython3 -c "import tifffile; data = tifffile.imread(\"test.tif\"); print(f\"✓ tifffile read test passed, shape: {data.shape}\")"\npython3 -c "from pyspark.sql import SparkSession; spark = SparkSession.builder.master(\"local[*]\").appName(\"test\").getOrCreate(); print(\"✓ Spark session created successfully\"); spark.stop()"\necho "EMR environment setup complete!"\n' > /opt/workspace/test_emr.sh && chmod +x /opt/workspace/test_emr.sh
+
+# Default command
+CMD ["/bin/bash"] 

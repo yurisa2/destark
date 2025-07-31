@@ -45,12 +45,12 @@ echo "Output prefix: $OUTPUT_PREFIX"
 
 # Define configs with original S3 URLs (which work)
 declare -A FIS_CONFIGS=(
-    ["max"]="s3://adveng-pipeline/unifile_test/config_max.json"
-    ["median"]="s3://adveng-pipeline/unifile_test/config_median.json"
-    ["minimum"]="s3://adveng-pipeline/unifile_test/config_minimum.json"
-    ["mode"]="s3://adveng-pipeline/unifile_test/config_mode.json"
-    ["round_up"]="s3://adveng-pipeline/unifile_test/config_round_up.json"
-    ["round_down"]="s3://adveng-pipeline/unifile_test/config_round_down.json"
+    ["max"]="s3://<AWS-BUCKET>/unifile_test/config_max.json"
+    ["median"]="s3://<AWS-BUCKET>/unifile_test/config_median.json"
+    ["minimum"]="s3://<AWS-BUCKET>/unifile_test/config_minimum.json"
+    ["mode"]="s3://<AWS-BUCKET>/unifile_test/config_mode.json"
+    ["round_up"]="s3://<AWS-BUCKET>/unifile_test/config_round_up.json"
+    ["round_down"]="s3://<AWS-BUCKET>/unifile_test/config_round_down.json"
 )
 
 # Function to run a single model

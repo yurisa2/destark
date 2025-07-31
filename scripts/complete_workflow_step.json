@@ -7,7 +7,7 @@
       "Args": [
         "bash",
         "-c",
-        "cd /mnt/destark && git pull origin main && python3 -m pip install --user python-dateutil numpy scipy pandas rasterio scikit-fuzzy boto3 s3fs && python3 -c 'import dateutil, numpy, rasterio, skfuzzy, boto3, s3fs; print(\"✓ Packages installed successfully\")' && chmod +x scripts/run_all_fis_models_local_optimized.sh && ./scripts/run_all_fis_models_local_optimized.sh s3://adveng-pipeline/unifile_test/so300m.in s3://adveng-pipeline/unifile_test/e300m.in s3://adveng-pipeline/unifile_test/s300m.in s3://adveng-pipeline/unifile_test/result_300m"
+        "cd /mnt/destark && git pull origin main && python3 -m pip install --user python-dateutil numpy scipy pandas rasterio scikit-fuzzy boto3 s3fs && python3 -c 'import dateutil, numpy, rasterio, skfuzzy, boto3, s3fs; print(\"✓ Packages installed successfully\")' && chmod +x scripts/run_all_fis_models_local_optimized.sh && ./scripts/run_all_fis_models_local_optimized.sh s3://<AWS-BUCKET>/unifile_test/so300m.in s3://<AWS-BUCKET>/unifile_test/e300m.in s3://<AWS-BUCKET>/unifile_test/s300m.in s3://<AWS-BUCKET>/unifile_test/result_300m"
       ]
     }
   }
