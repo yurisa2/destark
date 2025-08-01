@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import Header from './components/Header';
-import FISBuilder from './components/FISBuilder';
-import HelpGuide from './components/HelpGuide';
+import Dashboard from './components/Dashboard';
+import VariableEditor from './components/VariableEditor';
+import RulesEditor from './components/RulesEditor';
 import ExecutionPanel from './components/ExecutionPanel';
+import HelpGuide from './components/HelpGuide';
 import './App.css';
 
 function App() {
@@ -11,6 +13,7 @@ function App() {
     name: "Environmental Assessment FIS",
     inputs: {
       social: {
+        name: "Social Factors",
         min: 0,
         max: 10,
         step: 0.1,
@@ -21,6 +24,7 @@ function App() {
         }
       },
       environmental: {
+        name: "Environmental Factors",
         min: 0,
         max: 10,
         step: 0.1,
@@ -31,6 +35,7 @@ function App() {
         }
       },
       strategic: {
+        name: "Strategic Factors",
         min: 0,
         max: 10,
         step: 0.1,
@@ -42,7 +47,7 @@ function App() {
       }
     },
     output_variable: {
-      name: "priority",
+      name: "Priority Assessment",
       min: 0,
       max: 10,
       step: 0.1,
@@ -62,21 +67,33 @@ function App() {
       <div className="app">
         <Header title="Destark FIS Builder" />
         
-        <nav className="main-nav">
-          <div className="container">
-            <Link to="/" className="nav-link">FIS Builder</Link>
-            <Link to="/execute" className="nav-link">Execute System</Link>
-            <Link to="/help" className="nav-link">Help Guide</Link>
-          </div>
-        </nav>
-
+        <Navigation />
+        
         <main className="main-content">
           <div className="container">
             <Routes>
               <Route 
                 path="/" 
                 element={
-                  <FISBuilder 
+                  <Dashboard 
+                    fisConfig={fisConfig} 
+                    setFisConfig={setFisConfig} 
+                  />
+                } 
+              />
+              <Route 
+                path="/variable/:type/:name" 
+                element={
+                  <VariableEditor 
+                    fisConfig={fisConfig} 
+                    setFisConfig={setFisConfig} 
+                  />
+                } 
+              />
+              <Route 
+                path="/rules" 
+                element={
+                  <RulesEditor 
                     fisConfig={fisConfig} 
                     setFisConfig={setFisConfig} 
                   />
@@ -96,6 +113,37 @@ function App() {
         </main>
       </div>
     </Router>
+  );
+}
+
+// Navigation component with active state
+function Navigation() {
+  const location = useLocation();
+  
+  const isActive = (path) => {
+    if (path === '/') {
+      return location.pathname === '/';
+    }
+    return location.pathname.startsWith(path);
+  };
+
+  return (
+    <nav className="main-nav">
+      <div className="container">
+        <Link to="/" className={`nav-link ${isActive('/') ? 'active' : ''}`}>
+          🏠 Dashboard
+        </Link>
+        <Link to="/rules" className={`nav-link ${isActive('/rules') ? 'active' : ''}`}>
+          📋 Rules
+        </Link>
+        <Link to="/execute" className={`nav-link ${isActive('/execute') ? 'active' : ''}`}>
+          ▶️ Execute
+        </Link>
+        <Link to="/help" className={`nav-link ${isActive('/help') ? 'active' : ''}`}>
+          ❓ Help
+        </Link>
+      </div>
+    </nav>
   );
 }
 
