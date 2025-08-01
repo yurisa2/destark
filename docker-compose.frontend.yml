@@ -1,0 +1,21 @@
+# Docker Compose v2 syntax - Frontend Only
+
+services:
+  # Frontend React App
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - fis-network
+
+networks:
+  fis-network:
+    driver: bridge 

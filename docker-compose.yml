@@ -1,0 +1,86 @@
+# Docker Compose v2 syntax
+
+services:
+  # Frontend React App
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - fis-network
+
+  # Backend FastAPI
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONPATH=/app
+    volumes:
+      - ./backend:/app
+      - ./app:/app/fis_engine
+      - fis_data:/tmp/fis_jobs
+    depends_on:
+      - spark-master
+    networks:
+      - fis-network
+
+  # Spark Master
+  spark-master:
+    image: bitnami/spark:3.5.0
+    container_name: spark-master
+    environment:
+      - SPARK_MODE=master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    ports:
+      - "8080:8080"  # Spark Web UI
+      - "7077:7077"  # Spark Master port
+    volumes:
+      - ./app:/opt/bitnami/spark/app
+      - ./data:/opt/bitnami/spark/data
+      - ./logs:/opt/bitnami/spark/logs
+    networks:
+      - fis-network
+
+  # Spark Worker
+  spark-worker:
+    image: bitnami/spark:3.5.0
+    container_name: spark-worker
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_MEMORY=4G
+      - SPARK_WORKER_CORES=4
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    volumes:
+      - ./app:/opt/bitnami/spark/app
+      - ./data:/opt/bitnami/spark/data
+      - ./logs:/opt/bitnami/spark/logs
+    depends_on:
+      - spark-master
+    networks:
+      - fis-network
+
+networks:
+  fis-network:
+    driver: bridge
+
+volumes:
+  fis_data: 

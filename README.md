@@ -2,7 +2,37 @@
 
 ## Research Evolution: From Single-Threaded Models to Distributed Processing
 
-This repository documents the complete research journey of developing and scaling Fuzzy Inference Systems (FIS) for environmental assessment, from initial single-threaded implementations to distributed cloud processing.
+This repository documents the complete research journey of developing and scaling Fuzzy Inference Systems (FIS) for environmental assessment, from initial single-threaded implementations to distributed cloud processing, now enhanced with a comprehensive web-based frontend system.
+
+## 🆕 NEW: Complete Web Application
+
+The Destark FIS system now includes a **comprehensive, didactic web frontend** that provides:
+
+- **🏗️ Visual FIS Builder**: Drag-and-drop interface for building fuzzy logic systems
+- **📋 Rule Base Management**: Auto-generate and edit all 27 fuzzy rules
+- **📥 Configuration Export**: Download JSON configurations for the FIS engine
+- **🚀 System Execution**: Upload GeoTIFF files and execute FIS processing
+- **📚 Educational Content**: Extensive help system and tutorials
+
+### Quick Start
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd destark
+
+# Start the complete system (Docker required)
+./quick_start.sh
+
+# Or start manually
+docker-compose up -d
+```
+
+**Access the application:**
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:8000
+- **API Documentation**: http://localhost:8000/docs
+- **Spark Web UI**: http://localhost:8080
 
 ## 📖 Research Story
 
@@ -25,74 +55,81 @@ This repository documents the complete research journey of developing and scalin
 - **Platforms**: Local Spark, AWS EMR, AWS Glue
 - **Technical Innovation**: Tifffile library for cloud deployment reliability
 
+### Phase 4: Web Application - User-Friendly Interface
+**Goal**: Create accessible, educational interface for FIS systems
+- **Challenge**: Make complex fuzzy logic accessible to non-experts
+- **Solution**: Comprehensive React-based web application
+- **Features**: Visual builders, educational content, real-time validation
+- **Innovation**: Patent-worthy didactic interface for environmental assessment
+
 ## 🏗️ Repository Structure
 
 ```
 destark/
-├── research/                          # Core research components
-│   ├── phase1_foundation/            # Initial FIS development
-│   ├── phase2_scaling/               # Multiprocessing implementation
-│   ├── phase3_distributed/           # Spark and cloud processing
-│   └── methodology/                  # Research methodology
-├── data/                             # Research datasets
-│   ├── 1000m/                       # Coarse resolution data
-│   ├── 300m/                        # Medium resolution data
-│   └── metadata/                    # Data documentation
-├── experiments/                      # Experimental workflows
-│   ├── performance_benchmarks/      # Performance comparisons
-│   ├── resolution_scaling/          # Resolution scaling studies
-│   └── cloud_platforms/             # Cloud platform comparisons
-├── results/                         # Research results
-│   ├── publications/                # Manuscripts and papers
-│   ├── visualizations/              # Publication-ready figures
-│   └── analysis/                    # Statistical analysis
-├── infrastructure/                  # Computing infrastructure
-│   ├── local/                       # Local processing setup
-│   ├── aws_emr/                     # AWS EMR configurations
-│   └── aws_glue/                    # AWS Glue implementations
-└── documentation/                   # Comprehensive documentation
+├── frontend/                     # NEW: React web application
+│   ├── src/components/          # FIS Builder components
+│   ├── src/utils/               # Utility functions
+│   └── package.json            # Frontend dependencies
+├── backend/                      # NEW: FastAPI backend
+│   ├── main.py                 # API endpoints
+│   └── requirements.txt        # Backend dependencies
+├── research/                     # Core research components
+│   ├── phase1_foundation/      # Initial FIS development
+│   ├── phase2_scaling/         # Multiprocessing implementation
+│   ├── phase3_distributed/     # Spark and cloud processing
+│   └── methodology/            # Research methodology
+├── app/                         # Core FIS engine
+│   ├── raster_fuzzy_lib.py     # Main FIS implementation
+│   ├── raster_fuzzy_spark.py   # Spark-based processing
+│   └── config/                 # FIS configurations
+├── data/                        # Research datasets
+├── experiments/                 # Experimental workflows
+├── results/                     # Research results
+├── infrastructure/              # Computing infrastructure
+├── documentation/               # Comprehensive documentation
+├── docker-compose.yml          # NEW: Complete system orchestration
+├── quick_start.sh              # NEW: Easy deployment script
+└── README_FRONTEND.md          # NEW: Frontend documentation
 ```
 
 ## 🚀 Quick Start
 
-### Phase 1: Basic FIS Processing (1000m)
+### Option 1: Complete System (Recommended)
 ```bash
-# Run single FIS model
-python research/phase1_foundation/run_fis_1000m.py \
-  data/1000m/social.tif \
-  data/1000m/environmental.tif \
-  data/1000m/strategic.tif \
-  results/output_1000m.tif
+# Start everything with one command
+./quick_start.sh
 ```
 
-### Phase 2: Multiprocessing (300m)
+### Option 2: Manual Setup
 ```bash
-# Run with multiprocessing
-python research/phase2_scaling/run_fis_300m_parallel.py \
-  data/300m/social.tif \
-  data/300m/environmental.tif \
-  data/300m/strategic.tif \
-  results/output_300m.tif \
-  --cores 8 --chunk-size 200
+# Start the complete system
+docker-compose up -d
+
+# Access the web application
+open http://localhost:3000
 ```
 
-### Phase 3: Distributed Processing (30m)
+### Option 3: Development Mode
 ```bash
-# Run on AWS EMR
-./infrastructure/aws_emr/run_30m_emr.sh \
-  s3://bucket/30m/social.tif \
-  s3://bucket/30m/environmental.tif \
-  s3://bucket/30m/strategic.tif \
-  s3://bucket/results/output_30m.tif
+# Frontend development
+cd frontend
+npm install
+npm start
+
+# Backend development
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload
 ```
 
 ## 📊 Performance Evolution
 
-| Phase | Resolution | Pixels | Processing | Time | Memory |
-|-------|------------|--------|------------|------|--------|
-| 1 | 1000m | 20M | Single-threaded | 9.7 min | 4GB |
-| 2 | 300m | 220M | Multiprocessing | 17.5 min | 12GB |
-| 3 | 30m | 2.2B | Distributed Spark | 45 min | 40GB |
+| Phase | Resolution | Pixels | Processing | Time | Memory | Interface |
+|-------|------------|--------|------------|------|--------|-----------|
+| 1 | 1000m | 20M | Single-threaded | 9.7 min | 4GB | CLI |
+| 2 | 300m | 220M | Multiprocessing | 17.5 min | 12GB | CLI |
+| 3 | 30m | 2.2B | Distributed Spark | 45 min | 40GB | CLI |
+| 4 | All | All | Web Application | Variable | Variable | **Web UI** |
 
 ## 🔬 Research Contributions
 
@@ -101,26 +138,103 @@ python research/phase2_scaling/run_fis_300m_parallel.py \
 3. **Performance Optimization**: Multiprocessing and distributed computing strategies
 4. **Cloud Platform Evaluation**: Comparative analysis of AWS EMR vs Glue
 5. **Library Innovation**: Tifffile-based solution for reliable cloud deployment
-6. **Reproducible Research**: Complete workflow documentation and automation
+6. **Web Interface Innovation**: Patent-worthy didactic interface for FIS systems
+7. **Reproducible Research**: Complete workflow documentation and automation
 
-## 📚 Publications
+## 🌐 Web Application Features
 
-- [Phase 1] FIS Model Development and Validation
-- [Phase 2] Scaling Geospatial Processing with Multiprocessing
-- [Phase 3] Distributed Computing for High-Resolution Environmental Assessment
-- [Technical] Library Comparison: Rasterio vs Tifffile for Cloud Geospatial Processing
+### FIS Builder Interface
+- **Visual Configuration**: Drag-and-drop interface for building fuzzy logic systems
+- **Input Variables**: Configure social, environmental, and strategic factors
+- **Output Variables**: Define priority assessment with 5 membership levels
+- **Membership Functions**: Visual editor for trapezoidal and triangular functions
+- **Real-time Validation**: Instant feedback on configuration errors
 
-## 🤝 Contributing
+### Rule Base Management
+- **Auto-Generation**: Generate all 27 possible fuzzy rules automatically
+- **Editable Rules**: Click-to-edit interface for customizing rules
+- **Rule Validation**: Real-time syntax and logic checking
+- **Visual Rule Builder**: Drag-and-drop antecedent/consequent selection
+- **Rule Statistics**: Live count of valid/invalid rules
 
-This is a research repository. Please see `CONTRIBUTING.md` for guidelines on contributing to the research.
+### System Execution
+- **File Upload**: Drag-and-drop GeoTIFF upload interface
+- **Processing Status**: Real-time execution progress
+- **Results Display**: Map visualization and statistics
+- **Download Results**: Export processed GeoTIFF files
+
+### Educational Content
+- **Interactive Tutorials**: Step-by-step guidance
+- **Fuzzy Logic Education**: Clear explanations of concepts
+- **Context-Sensitive Help**: Help that appears based on user actions
+- **Tooltips**: Hover explanations for all interface elements
+
+## 📚 Documentation
+
+- **[Frontend Guide](README_FRONTEND.md)**: Comprehensive frontend documentation
+- **[Deployment Guide](DEPLOYMENT_GUIDE.md)**: Complete deployment instructions
+- **[API Documentation](http://localhost:8000/docs)**: Interactive API docs (when running)
+
+## 🚀 Deployment Options
+
+### Local Development
+```bash
+./quick_start.sh
+```
+
+### Production Deployment
+- **AWS**: ECS Fargate + EMR for Spark processing
+- **Google Cloud**: GKE + Cloud Run
+- **Azure**: Container Instances + AKS
+- **Docker**: Any platform with Docker support
+
+See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for detailed instructions.
+
+## 🔧 Development
+
+### Frontend Development
+```bash
+cd frontend
+npm install
+npm start
+npm test
+```
+
+### Backend Development
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload
+pytest test_main.py
+```
+
+### Testing
+```bash
+# Frontend tests
+cd frontend && npm test
+
+# Backend tests
+cd backend && pytest test_main.py
+
+# Integration tests
+docker-compose up -d
+# Run tests against running system
+```
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## 🤝 Contributing
+
+This is a research repository with an active web application component. Please see `CONTRIBUTING.md` for guidelines on contributing to the research and development.
+
 ## 📞 Contact
 
-For research collaboration or questions, please open an issue or contact the research team.
+For research collaboration, questions, or technical support:
+- Open an issue in the repository
+- Contact the research team
+- Check the documentation and help guides
 
 ---
 
